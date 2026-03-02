@@ -1,0 +1,66 @@
+name: Weekly Citations Refresh
+
+on:
+  schedule:
+    # Run weekly on Saturday at 10:00 UTC
+    - cron: '0 10 * * 6'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  citations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Refresh citations
+        env:
+          CONTEXTUAL_API_KEY: ${{ secrets.CONTEXTUAL_API_KEY }}
+          CONTEXTUAL_DATASTORE_ID: ${{ secrets.CONTEXTUAL_DATASTORE_ID }}
+          CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            contextual-arxiv-feed refresh-citations --dry-run
+          else
+            contextual-arxiv-feed refresh-citations
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: citations-run-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "## Citations Refresh Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f artifacts/run_summary.md ]; then
+            cat artifacts/run_summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No summary generated" >> $GITHUB_STEP_SUMMARY
+          fi

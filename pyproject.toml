@@ -1,0 +1,85 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "contextual-arxiv-feed"
+version = "0.1.0"
+description = "Production-grade arXiv paper ingestion into Contextual AI Datastore with two-stage filtering"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Contextual AI Team" }
+]
+keywords = ["arxiv", "contextual-ai", "paper-ingestion", "llm", "research"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+    "click>=8.0.0",
+    "pyyaml>=6.0.0",
+    "feedparser>=6.0.0",
+    "tenacity>=8.0.0",
+    "nltk>=3.8.0",
+    "python-dotenv>=1.0.0",
+    "pypdf>=3.0.0",
+    "chromadb>=0.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "types-PyYAML>=6.0.0",
+    "respx>=0.20.0",
+]
+local-llm = [
+    "llama-cpp-python>=0.3.0",
+]
+reddit = [
+    "praw>=7.0.0",
+]
+
+[project.scripts]
+contextual-arxiv-feed = "contextual_arxiv_feed.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/contextual-ai/contextual-arxiv-feed"
+Documentation = "https://github.com/contextual-ai/contextual-arxiv-feed#readme"
+Repository = "https://github.com/contextual-ai/contextual-arxiv-feed"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/contextual_arxiv_feed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/contextual_arxiv_feed/pipeline/backfill.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true

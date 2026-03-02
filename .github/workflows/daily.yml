@@ -1,0 +1,64 @@
+name: Daily Pipeline (Manual Fallback)
+
+# Oracle Cloud runs the full daily pipeline (analysis + ingestion).
+# This workflow exists only as a manual fallback for testing or recovery.
+# It is NOT triggered automatically.
+
+on:
+  workflow_dispatch: {}
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  run-daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run full pipeline
+        env:
+          CONTEXTUAL_API_KEY: ${{ secrets.CONTEXTUAL_API_KEY }}
+          CONTEXTUAL_DATASTORE_ID: ${{ secrets.CONTEXTUAL_DATASTORE_ID }}
+          CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
+          LLM_API_KEYS: ${{ secrets.LLM_API_KEYS }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_SECONDARY_API_KEYS: ${{ secrets.LLM_SECONDARY_API_KEYS }}
+          LLM_SECONDARY_BASE_URL: ${{ secrets.LLM_SECONDARY_BASE_URL }}
+          LLM_SECONDARY_MODEL_ID: ${{ secrets.LLM_SECONDARY_MODEL_ID }}
+          ARXIV_THROTTLE_SECONDS: '3'
+        run: |
+          contextual-arxiv-feed run-daily
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-run-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Summary
+        run: |
+          echo "## Daily Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f artifacts/run_summary.md ]; then
+            cat artifacts/run_summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No summary generated" >> $GITHUB_STEP_SUMMARY
+          fi

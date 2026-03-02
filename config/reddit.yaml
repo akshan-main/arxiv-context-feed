@@ -1,0 +1,18 @@
+# Reddit Posting Configuration
+# Posts top papers to your own subreddit(s).
+# Bot posts to existing subreddits will get banned by mods.
+
+enabled: false
+
+# Your own subreddit(s) - e.g., [YourSubredditName]
+subreddits: []
+
+# Minimum quality score to post (0 = post all accepted papers)
+min_quality_i: 0
+
+# Max papers to post per run (0 = no limit, post all accepted)
+max_posts_per_run: 0
+
+# Optional flair overrides. If a topic key is NOT in this map,
+# the poster auto-uses topic.name from topics.yaml as the flair.
+flair_overrides: {}

@@ -1,0 +1,128 @@
+name: Process Config Change from Issue
+
+on:
+  issues:
+    types: [opened, labeled]
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  process-config-change:
+    # Only run if issue has required labels
+    if: |
+      contains(github.event.issue.labels.*.name, 'source:google-form') &&
+      contains(github.event.issue.labels.*.name, 'config-change')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Process config change
+        id: process
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          python << 'EOF'
+          import os
+          import sys
+          from pathlib import Path
+
+          from contextual_arxiv_feed.pipeline.apply_config_change import apply_config_change
+
+          issue_body = os.environ.get("ISSUE_BODY", "")
+          issue_number = os.environ.get("ISSUE_NUMBER", "")
+          config_dir = Path("config")
+
+          result = apply_config_change(issue_body, config_dir)
+
+          if result.success:
+              print(f"::set-output name=success::true")
+              print(f"::set-output name=changes::{'; '.join(result.changes_made)}")
+              print(f"::set-output name=change_type::{result.change_type}")
+              print(f"::set-output name=target_type::{result.target_type}")
+          else:
+              errors = "; ".join(f"{e.field}: {e.message}" for e in result.errors)
+              print(f"::set-output name=success::false")
+              print(f"::set-output name=errors::{errors}")
+              sys.exit(1)
+          EOF
+
+      - name: Run tests
+        if: steps.process.outputs.success == 'true'
+        run: pytest tests/ -v
+
+      - name: Create Pull Request
+        if: steps.process.outputs.success == 'true'
+        uses: peter-evans/create-pull-request@v6
+        id: cpr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            ${{ steps.process.outputs.change_type }} ${{ steps.process.outputs.target_type }} config
+
+            Changes from issue #${{ github.event.issue.number }}
+          branch: config-change-${{ github.event.issue.number }}
+          title: "Config: ${{ steps.process.outputs.change_type }} ${{ steps.process.outputs.target_type }} (from #${{ github.event.issue.number }})"
+          body: |
+            ## Config Change from Google Form
+
+            **Issue:** #${{ github.event.issue.number }}
+            **Change Type:** ${{ steps.process.outputs.change_type }}
+            **Target:** ${{ steps.process.outputs.target_type }}
+
+            ### Changes Made
+            ${{ steps.process.outputs.changes }}
+
+            ---
+            Auto-generated from issue created by Google Form bot.
+          labels: |
+            config-change
+            automated-pr
+
+      - name: Comment on issue - Success
+        if: steps.process.outputs.success == 'true' && steps.cpr.outputs.pull-request-url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ Config change processed successfully!\n\nPull Request: ${{ steps.cpr.outputs.pull-request-url }}\n\nChanges:\n- ${{ steps.process.outputs.changes }}`
+            })
+
+      - name: Comment on issue - Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: ` Config change failed to process.\n\nErrors:\n${{ steps.process.outputs.errors || 'See workflow logs for details' }}`
+            })
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['invalid']
+            })

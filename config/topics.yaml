@@ -1,0 +1,379 @@
+# Topic Configuration
+# Each topic defines keywords/phrases for Stage 1 filtering and context for Stage 2 judge.
+# Edit via Google Form -> Issue -> PR workflow.
+#
+# Fields:
+#   key: unique identifier (lowercase alphanumeric with hyphens/underscores)
+#   name: human-readable name
+#   description: what this topic covers
+#   arxiv_categories: list of arXiv categories to monitor
+#   keywords: single words for stemmed matching (Stage 1)
+#   phrases: multi-word phrases for substring matching (Stage 1)
+#   negatives: keywords/phrases to exclude (Stage 1)
+#   inclusion_notes: guidance for judge on what to include
+#   exclusion_notes: guidance for judge on what to exclude
+#   enabled: whether this topic is active
+#
+# Strategy: Stage 1 keywords cast a WIDE net. Stage 2 LLM judge provides
+# semantic understanding and catches papers using different terminology.
+
+topics:
+  - key: context-engineering
+    name: Context Engineering & Management
+    description: >
+      Research on engineering, managing, and optimizing context in LLMs.
+      Includes context window management, context poisoning/attacks,
+      context compression, and attention mechanism optimization.
+    arxiv_categories:
+      - cs.CL
+      - cs.AI
+      - cs.LG
+      - cs.CR
+    keywords:
+      # Specific to LLM context — low ambiguity
+      - compaction
+      - truncation
+    phrases:
+      - context engineering
+      - context window
+      - context poisoning
+      - context distraction
+      - context confusion
+      - context clash
+      - context rot
+      - context length
+      - long context
+      - context compression
+      - context distillation
+      - context overflow
+      - context switching
+      - attention mechanism
+      - flash attention
+      - sparse attention
+      - sliding window
+      - positional encoding
+      - rotary position
+      - kv cache
+      - key-value cache
+      - prefix caching
+      - reduce context
+      - offload context
+      - lost in the middle
+      - needle in a haystack
+      - input length
+      - sequence length
+    negatives:
+      - image context
+      - video context
+    inclusion_notes: >
+      Include papers that address how LLMs handle, manage, or optimize context.
+      Accept papers on context attacks (poisoning, confusion), context window
+      extensions, attention optimization, and context compression methods.
+      Papers using different terminology for the same concepts should be included
+      (e.g., "attention bottleneck" relates to context window limits).
+    exclusion_notes: >
+      Exclude papers where "context" refers to non-LLM contexts (image context,
+      social context). Exclude pure attention papers without LLM relevance.
+    enabled: true
+
+  - key: rag-retrieval
+    name: RAG, Retrieval & Knowledge Systems
+    description: >
+      Research on retrieval-augmented generation, dense/semantic/hybrid retrieval,
+      vector databases, document parsing, knowledge bases, and re-ranking.
+    arxiv_categories:
+      - cs.CL
+      - cs.IR
+      - cs.AI
+      - cs.LG
+      - cs.DB
+    keywords:
+      # Specific to RAG/retrieval — low ambiguity
+      - retrieval
+      - rag
+      - retriever
+      - reranking
+      - rerank
+      - embedding
+      - embeddings
+      - chunking
+      - colbert
+      - bm25
+      - hallucination
+      - faithfulness
+    phrases:
+      - retrieval augmented
+      - retrieval-augmented generation
+      - dense retrieval
+      - semantic search
+      - vector search
+      - vector database
+      - knowledge base
+      - document retrieval
+      - passage retrieval
+      - hybrid search
+      - neural retrieval
+      - document parsing
+      - text extraction
+      - re-ranking
+      - learned retrieval
+      - knowledge graph
+      - question answering
+      - cross-encoder
+      - bi-encoder
+      - late interaction
+      - entity extraction
+      - fact verification
+      - knowledge grounded
+      - open domain
+      - information extraction
+      - document understanding
+    negatives:
+      - image retrieval
+      - video retrieval
+      - music retrieval
+    inclusion_notes: >
+      Include papers on retrieval methods for LLMs, RAG architectures,
+      embedding models, vector databases, document processing pipelines,
+      and knowledge-grounded generation. Accept papers that describe these
+      concepts using alternative terminology.
+    exclusion_notes: >
+      Exclude papers focused purely on image/video retrieval without
+      text or LLM components.
+    enabled: true
+
+  - key: llm-inference
+    name: LLM Inference & Reasoning
+    description: >
+      Research on optimizing LLM inference, reasoning capabilities,
+      chain-of-thought, and efficient serving systems.
+    arxiv_categories:
+      - cs.LG
+      - cs.CL
+      - cs.AI
+      - cs.DC
+      - cs.PF
+    keywords:
+      # Specific to LLM inference — low ambiguity
+      - inference
+      - quantization
+      - pruning
+      - distillation
+      - latency
+      - throughput
+      - speculative
+      - batching
+      - autoregressive
+      - vllm
+      - gguf
+      - ollama
+    phrases:
+      - large language model
+      - language model
+      - key-value cache
+      - kv cache
+      - model serving
+      - model compression
+      - speculative decoding
+      - continuous batching
+      - tensor parallelism
+      - chain of thought
+      - chain-of-thought
+      - inference optimization
+      - flash attention
+      - mixture of experts
+      - model parallelism
+      - pipeline parallelism
+      - token generation
+      - auto-regressive
+      - beam search
+      - nucleus sampling
+      - top-k sampling
+      - weight quantization
+      - activation quantization
+      - knowledge distillation
+      - scaling law
+      - test-time compute
+      - test time compute
+    negatives:
+      - survey
+      - literature review
+      - benchmark only
+    inclusion_notes: >
+      Include papers on inference efficiency, reasoning methods,
+      chain-of-thought techniques, and serving optimization.
+      Papers about improving how LLMs think and reason belong here.
+    exclusion_notes: >
+      Exclude pure benchmark papers and surveys without novel contributions.
+      Exclude papers focused solely on training (not inference/reasoning).
+    enabled: true
+
+  - key: agents-tools
+    name: LLM Agents, Tool Use & Multi-Agent Systems
+    description: >
+      Research on LLM-based agents, tool use, planning, multi-agent systems,
+      agent architectures, scaffolding, and agent memory management.
+    arxiv_categories:
+      - cs.AI
+      - cs.CL
+      - cs.LG
+      - cs.SE
+      - cs.RO
+      - cs.MA
+    keywords:
+      # Specific to LLM agents — low ambiguity
+      - agentic
+      - orchestration
+      - scaffold
+      - scaffolding
+    phrases:
+      - language agent
+      - llm agent
+      - tool use
+      - tool calling
+      - function calling
+      - code execution
+      - code generation
+      - multi-agent
+      - agent framework
+      - task planning
+      - autonomous agent
+      - agent architecture
+      - sub-agent
+      - agent memory
+      - reduce context
+      - offload context
+      - react pattern
+      - human in the loop
+      - web browsing
+      - computer use
+      - model context protocol
+      - agent evaluation
+      - agent benchmark
+      - step by step
+    negatives:
+      - reinforcement learning agent
+      - game agent
+      - robotic agent
+      - chemical reaction
+    inclusion_notes: >
+      Include papers on LLM-based agents, tool integration, agent
+      scaffolding patterns, memory management for agents, and multi-agent
+      coordination. Papers describing agent architectures with different
+      terminology should be included.
+    exclusion_notes: >
+      Exclude traditional RL agents without LLM components.
+      Exclude game-playing AI and non-LLM robotics.
+    enabled: true
+
+  - key: fine-tuning
+    name: Fine-tuning, Alignment & Prompt Engineering
+    description: >
+      Research on fine-tuning LLMs, alignment techniques, prompt engineering,
+      parameter-efficient methods, and instruction tuning.
+    arxiv_categories:
+      - cs.CL
+      - cs.LG
+      - cs.AI
+    keywords:
+      # Specific to LLM fine-tuning — low ambiguity
+      - finetuning
+      - fine-tuning
+      - adapter
+      - lora
+      - qlora
+      - rlhf
+      - dpo
+      - peft
+      - grpo
+      - sft
+      - rlaif
+    phrases:
+      - fine-tuning
+      - instruction tuning
+      - parameter efficient
+      - prompt engineering
+      - prompt tuning
+      - supervised fine-tuning
+      - low-rank adaptation
+      - reinforcement learning from human feedback
+      - direct preference optimization
+      - reward model
+      - preference learning
+      - constitutional ai
+      - safety alignment
+      - safety training
+      - model merging
+      - synthetic data
+      - data augmentation
+      - curriculum learning
+      - chat template
+      - system prompt
+      - few-shot learning
+      - in-context learning
+      - zero-shot
+    negatives:
+      - hyperparameter tuning
+      - neural architecture search
+    inclusion_notes: >
+      Include papers on methods for adapting, aligning, or customizing LLMs.
+      Accept papers on prompt design, instruction formatting, and
+      parameter-efficient training methods.
+    exclusion_notes: >
+      Exclude papers on general hyperparameter optimization without
+      LLM focus. Exclude pre-training papers (this topic is about post-training).
+    enabled: true
+
+  - key: generative-ai-foundations
+    name: Generative AI & NLP Foundations
+    description: >
+      Foundational research in generative AI, transformer architectures,
+      NLP methods, and chatbot systems.
+    arxiv_categories:
+      - cs.CL
+      - cs.AI
+      - cs.LG
+    keywords:
+      # Specific to NLP/LLM foundations — low ambiguity
+      - chatbot
+      - nlp
+      - tokenizer
+      - tokenization
+      - multilingual
+    phrases:
+      - generative AI
+      - natural language processing
+      - transformer architecture
+      - chatbot system
+      - language generation
+      - language model
+      - large language model
+      - foundation model
+      - scaling law
+      - pre-training
+      - model architecture
+      - sequence to sequence
+      - text generation
+      - causal language model
+      - masked language model
+      - vision language
+      - multimodal model
+      - encoder decoder
+    negatives:
+      - generative adversarial
+      - image generation
+      - music generation
+      - video generation
+      - image classification
+      - object detection
+      - speech synthesis
+    inclusion_notes: >
+      Include papers that advance foundational generative AI / NLP methods
+      relevant to LLMs. The paper should make a MEANINGFUL contribution -
+      not just use transformers as a tool.
+    exclusion_notes: >
+      Exclude papers that merely use transformers/NLP as infrastructure
+      for an unrelated domain. Exclude image/audio/video generation.
+      This topic has intentionally broad keywords - the judge must be
+      selective about quality and relevance.
+    enabled: true

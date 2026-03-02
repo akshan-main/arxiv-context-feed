@@ -1,0 +1,335 @@
+# Agent Composer YAML: arXiv + Reddit Multi-Source RAG Agent
+#
+# This workflow maximizes retrieval from two datastores:
+# - arXiv: Academic papers (PDFs + manifests)
+# - Reddit: Community discussions (HTML posts + comments)
+#
+# Features enabled:
+# - Query expansion & decomposition
+# - Agentic multi-turn research
+# - Source-aware reranking
+# - Quality filtering per datastore
+# - Grounded response generation with attributions
+
+inputs:
+  query: str
+
+outputs:
+  response: str
+  attributions: object
+  groundedness_score: float
+
+nodes:
+  # ============================================================
+  # PHASE 1: Initialize conversation context
+  # ============================================================
+  init_history:
+    type: CreateMessageHistoryStep
+    input_mapping:
+      query: __inputs__#query
+
+  # ============================================================
+  # PHASE 2: Agentic Research Loop
+  # The agent decides which tools to call and can iterate
+  # ============================================================
+  research:
+    type: AgenticResearchStep
+    config:
+      agent_config:
+        model: "claude-sonnet-4-5-20250514"
+        num_turns: 8
+        enable_parallel_tool_calls: true
+        identity_prompt: |
+          You are a research assistant with access to two complementary knowledge sources:
+
+          1. **arXiv Papers** (academic): Peer-reviewed research with rigorous benchmarks,
+             theoretical foundations, and novel techniques. Use for: algorithms, architectures,
+             benchmarks, mathematical proofs, performance comparisons.
+
+          2. **Reddit Discussions** (community): Practical experiences from r/LocalLLaMA,
+             r/RAG, r/contextengineering, r/AgentsOfAI. Use for: implementation tips,
+             real-world performance, tool comparisons, deployment experiences, troubleshooting.
+
+          Your job is to gather comprehensive information by searching BOTH sources when relevant.
+
+        research_guidelines_prompt: |
+          Research Strategy:
+          - For theoretical questions: Start with arXiv, supplement with Reddit experiences
+          - For practical questions: Start with Reddit, validate with arXiv benchmarks
+          - For comparisons (X vs Y): Search BOTH sources with specific queries for each
+          - Always search with multiple query variations to maximize coverage
+          - Stop when you have sufficient information from relevant sources
+          - If one source yields nothing, try rephrasing before giving up
+
+        output_guidelines_prompt: |
+          When synthesizing findings:
+          - Clearly distinguish academic research from community opinions
+          - Note when sources agree or conflict
+          - Prioritize recent information (last 6 months) for fast-moving topics
+          - Include specific references: arxiv IDs, subreddit names, post context
+
+      tools_config:
+        # Tool 1: Search arXiv papers
+        - name: search_arxiv
+          description: |
+            Search academic arXiv papers. Use for: research papers, benchmarks,
+            algorithms, theoretical foundations, peer-reviewed findings, citations.
+            Good for questions about: how something works, performance numbers,
+            novel techniques, mathematical proofs.
+          step_config:
+            type: SearchUnstructuredDataStep
+            config:
+              datastore_ids: ["<YOUR_ARXIV_DATASTORE_ID>"]  # Replace with actual ID
+              top_k: 50
+              lexical_alpha: 0.2
+              semantic_alpha: 0.8
+              enable_query_expansion: true
+              enable_query_decomposition: true
+              reranker: "ctxl-rerank-v2-instruct-multilingual-FP8"
+              rerank_top_k: 15
+              reranker_score_filter_threshold: 0.2
+              rerank_instructions: |
+                Prioritize papers with:
+                - High citation counts for established techniques
+                - Recent publication dates for cutting-edge research
+                - Direct relevance to the specific technique or algorithm mentioned
+                - Benchmark results when comparing approaches
+                Deprioritize: surveys, literature reviews unless explicitly requested
+
+        # Tool 2: Search Reddit discussions
+        - name: search_reddit
+          description: |
+            Search Reddit community discussions. Use for: practical experiences,
+            implementation tips, real-world performance, tool comparisons,
+            deployment experiences, troubleshooting, community opinions.
+            Good for questions about: what works in practice, user experiences,
+            tool recommendations, common issues and solutions.
+          step_config:
+            type: SearchUnstructuredDataStep
+            config:
+              datastore_ids: ["<YOUR_REDDIT_DATASTORE_ID>"]  # Replace with actual ID
+              top_k: 50
+              lexical_alpha: 0.3
+              semantic_alpha: 0.7
+              enable_query_expansion: true
+              enable_query_decomposition: true
+              reranker: "ctxl-rerank-v2-instruct-multilingual-FP8"
+              rerank_top_k: 15
+              reranker_score_filter_threshold: 0.15
+              rerank_instructions: |
+                Prioritize posts with:
+                - High scores (upvotes) indicating community validation
+                - Multiple comments showing active discussion
+                - From relevant subreddits: LocalLLaMA, RAG, contextengineering
+                - Recent posts for fast-moving topics
+                - Detailed technical content over short opinions
+                Deprioritize: low-effort posts, unsubstantiated claims, off-topic content
+
+        # Tool 3: Combined search (for broad queries)
+        - name: search_all
+          description: |
+            Search BOTH arXiv papers AND Reddit discussions simultaneously.
+            Use when: you need perspectives from both academic research and
+            community experience, or when unsure which source is more relevant.
+          graph_config:
+            inputs:
+              query: str
+            outputs:
+              retrievals: object
+            nodes:
+              arxiv_search:
+                type: SearchUnstructuredDataStep
+                config:
+                  datastore_ids: ["<YOUR_ARXIV_DATASTORE_ID>"]
+                  top_k: 30
+                  lexical_alpha: 0.2
+                  semantic_alpha: 0.8
+                  enable_query_expansion: true
+                  reranker: "ctxl-rerank-v2-instruct-multilingual-FP8"
+                  rerank_top_k: 10
+                input_mapping:
+                  query: __inputs__#query
+
+              reddit_search:
+                type: SearchUnstructuredDataStep
+                config:
+                  datastore_ids: ["<YOUR_REDDIT_DATASTORE_ID>"]
+                  top_k: 30
+                  lexical_alpha: 0.3
+                  semantic_alpha: 0.7
+                  enable_query_expansion: true
+                  reranker: "ctxl-rerank-v2-instruct-multilingual-FP8"
+                  rerank_top_k: 10
+                input_mapping:
+                  query: __inputs__#query
+
+              merge_results:
+                type: MergeStep
+                input_mapping:
+                  arxiv: arxiv_search#retrievals
+                  reddit: reddit_search#retrievals
+
+              __outputs__:
+                type: output
+                input_mapping:
+                  retrievals: merge_results#output
+
+        # Tool 4: Web search for latest information
+        - name: search_web
+          description: |
+            Search the live web for current information not in datastores.
+            Use when: asking about very recent developments (last few days),
+            need official documentation links, or datastores lack information.
+          step_config:
+            type: WebSearchStep
+            config:
+              top_k: 10
+
+    input_mapping:
+      message_history: init_history#message_history
+
+  # ============================================================
+  # PHASE 3: Generate grounded response from research
+  # ============================================================
+  generate:
+    type: GenerateFromResearchStep
+    config:
+      model: "claude-sonnet-4-5-20250514"
+      temperature: 0.3
+      enable_groundedness_check: true
+      enable_attribution: true
+      system_prompt: |
+        You are a research assistant synthesizing findings from arXiv papers and Reddit discussions.
+
+        Response Guidelines:
+        1. ALWAYS cite sources inline:
+           - arXiv papers: [arxiv:2401.12345] or [Paper Title, arxiv:2401.12345]
+           - Reddit posts: [r/LocalLLaMA] or [u/username on r/RAG]
+
+        2. Distinguish source types:
+           - "Research shows..." or "According to [paper]..." for academic findings
+           - "Community experience suggests..." or "Users report..." for Reddit
+
+        3. Handle conflicts:
+           - When sources disagree, explain both perspectives
+           - Note if academic benchmarks differ from real-world experience
+
+        4. Prioritize:
+           - Lead with the most authoritative source for the question type
+           - Theory questions → academic first
+           - Practical questions → community first
+
+        5. Be specific:
+           - Include version numbers, model names, specific techniques
+           - Quote relevant metrics and benchmarks when available
+    input_mapping:
+      research_output: research#output
+      query: __inputs__#query
+
+  # ============================================================
+  # OUTPUT: Map final results
+  # ============================================================
+  __outputs__:
+    type: output
+    ui_output: true
+    input_mapping:
+      response: generate#response
+      attributions: generate#attribution_result
+      groundedness_score: generate#groundedness_scores
+
+---
+# ============================================================
+# ALTERNATIVE: Simple (Non-Agentic) Workflow
+# Use this if you want faster, deterministic responses
+# ============================================================
+
+# Uncomment below and comment out the agentic workflow above
+
+# inputs:
+#   query: str
+#
+# outputs:
+#   response: str
+#
+# nodes:
+#   # Expand query with domain terminology
+#   reformulate:
+#     type: ReformulateQueryStep
+#     config:
+#       instructions: |
+#         Expand this query to include:
+#         - Academic terminology (for arXiv)
+#         - Colloquial terms (for Reddit)
+#         - Related concepts and synonyms
+#     input_mapping:
+#       query: __inputs__#query
+#
+#   # Search both datastores
+#   search:
+#     type: SearchUnstructuredDataStep
+#     config:
+#       datastore_ids:
+#         - "<YOUR_ARXIV_DATASTORE_ID>"
+#         - "<YOUR_REDDIT_DATASTORE_ID>"
+#       top_k: 50
+#       lexical_alpha: 0.25
+#       semantic_alpha: 0.75
+#       enable_query_decomposition: true
+#     input_mapping:
+#       query: reformulate#reformulated_query
+#
+#   # Rerank with source-aware instructions
+#   rerank:
+#     type: RerankRetrievalsStep
+#     config:
+#       reranker: "ctxl-rerank-v2-instruct-multilingual-FP8"
+#       rerank_top_k: 20
+#       reranker_score_filter_threshold: 0.2
+#       rerank_instructions: |
+#         For technical depth (algorithms, benchmarks, proofs):
+#           Prioritize arXiv papers with high citations
+#
+#         For practical guidance (implementation, deployment, tooling):
+#           Prioritize Reddit posts with high scores from relevant subreddits
+#
+#         For comparisons:
+#           Balance both sources - academic benchmarks AND community experience
+#
+#         Always prefer recent content (last 6 months) for fast-moving topics
+#     input_mapping:
+#       query: __inputs__#query
+#       retrievals: search#retrievals
+#
+#   # Filter low-quality results
+#   filter:
+#     type: FilterRetrievalsStep
+#     config:
+#       filter_retrievals: true
+#       template_filter: |
+#         Keep chunks that:
+#         - Directly address the query
+#         - Contain specific technical details
+#         - Come from credible sources (cited papers, experienced users)
+#
+#         Remove chunks that:
+#         - Are off-topic or tangential
+#         - Contain only opinions without substance
+#         - Are duplicates or near-duplicates
+#     input_mapping:
+#       query: __inputs__#query
+#       retrievals: rerank#retrievals
+#
+#   # Generate response
+#   generate:
+#     type: ResponseGenerationStep
+#     config:
+#       temperature: 0.3
+#     input_mapping:
+#       query: __inputs__#query
+#       retrievals: filter#retrievals
+#
+#   __outputs__:
+#     type: output
+#     ui_output: true
+#     input_mapping:
+#       response: generate#response

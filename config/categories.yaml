@@ -1,0 +1,57 @@
+# Allowlist of valid arXiv categories
+# See: https://arxiv.org/category_taxonomy
+# This list contains commonly used categories for ML/AI research.
+# Add more as needed via Google Form -> Issue -> PR workflow.
+
+categories:
+  # Computer Science - AI/ML related
+  - cs.AI    # Artificial Intelligence
+  - cs.CL    # Computation and Language (NLP)
+  - cs.CV    # Computer Vision and Pattern Recognition
+  - cs.LG    # Machine Learning
+  - cs.NE    # Neural and Evolutionary Computing
+  - cs.RO    # Robotics
+  - cs.IR    # Information Retrieval
+  - cs.HC    # Human-Computer Interaction
+  - cs.CY    # Computers and Society
+  - cs.DC    # Distributed, Parallel, and Cluster Computing
+  - cs.PF    # Performance
+  - cs.SE    # Software Engineering
+  - cs.PL    # Programming Languages
+  - cs.DB    # Databases
+  - cs.CR    # Cryptography and Security
+  - cs.DS    # Data Structures and Algorithms
+  - cs.MA    # Multiagent Systems
+  - cs.NA    # Numerical Analysis
+  - cs.SY    # Systems and Control
+
+  # Statistics
+  - stat.ML  # Machine Learning
+  - stat.TH  # Statistics Theory
+  - stat.ME  # Methodology
+  - stat.CO  # Computation
+  - stat.AP  # Applications
+
+  # Mathematics
+  - math.OC  # Optimization and Control
+  - math.ST  # Statistics Theory
+  - math.NA  # Numerical Analysis
+  - math.PR  # Probability
+
+  # Electrical Engineering and Systems Science
+  - eess.AS  # Audio and Speech Processing
+  - eess.IV  # Image and Video Processing
+  - eess.SP  # Signal Processing
+  - eess.SY  # Systems and Control
+
+  # Physics (computational/ML applications)
+  - physics.comp-ph  # Computational Physics
+  - physics.data-an  # Data Analysis, Statistics and Probability
+
+  # Quantitative Biology
+  - q-bio.QM  # Quantitative Methods
+  - q-bio.NC  # Neurons and Cognition
+
+  # Quantitative Finance
+  - q-fin.ST  # Statistical Finance
+  - q-fin.CP  # Computational Finance

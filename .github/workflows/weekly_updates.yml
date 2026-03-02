@@ -1,0 +1,76 @@
+name: Weekly Updates Pipeline
+
+on:
+  schedule:
+    # Run weekly on Sunday at 08:00 UTC
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: 'Days to look back for updates'
+        required: false
+        default: '7'
+        type: string
+      dry_run:
+        description: 'Run in dry-run mode'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  updates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Run updates pipeline
+        env:
+          CONTEXTUAL_API_KEY: ${{ secrets.CONTEXTUAL_API_KEY }}
+          CONTEXTUAL_DATASTORE_ID: ${{ secrets.CONTEXTUAL_DATASTORE_ID }}
+          CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          JUDGE_PROVIDER: ${{ vars.JUDGE_PROVIDER || 'anthropic' }}
+          JUDGE_MODEL_ID: ${{ vars.JUDGE_MODEL_ID || 'claude-3-haiku-20240307' }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          ARXIV_THROTTLE_SECONDS: '3'
+        run: |
+          LOOKBACK="${{ inputs.lookback_days || '7' }}"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            contextual-arxiv-feed dry-run --mode updates
+          else
+            contextual-arxiv-feed run-updates --lookback-days "$LOOKBACK"
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: updates-run-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+
+      - name: Summary
+        run: |
+          echo "## Weekly Updates Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f artifacts/run_summary.md ]; then
+            cat artifacts/run_summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No summary generated" >> $GITHUB_STEP_SUMMARY
+          fi

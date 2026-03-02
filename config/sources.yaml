@@ -1,0 +1,12 @@
+# Citation Sources Configuration
+# Controls how citation data is fetched and refreshed.
+
+# OpenAlex API (free, no key required)
+enable_openalex: true
+openalex_rate_limit_per_second: 10
+
+# Days between citation refreshes
+citations_refresh_days: 7
+
+# Cooldown in seconds after hitting rate limit on an API key
+key_cooldown_seconds: 60

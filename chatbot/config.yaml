@@ -1,0 +1,32 @@
+# Chatbot Configuration
+
+# Embedding model for FAISS indexing
+embedding_model: sentence-transformers/all-MiniLM-L6-v2
+
+# Cross-encoder for reranking
+reranker_model: cross-encoder/ms-marco-MiniLM-L6-v2
+
+# Whisper model for voice input (tiny/base/small/medium/large)
+whisper_model: small
+
+# Generator configuration
+generator:
+  # Default: local Qwen2.5-3B Q4 (works out of the box, no API key)
+  default_provider: local
+  default_model: qwen2.5-3b-instruct
+
+  # Users can override with ANY OpenAI-compatible endpoint:
+  # - Groq free tier (Llama 70B, best free option)
+  # - Their own Ollama instance
+  # - Oracle Cloud llama.cpp endpoint
+  # - OpenAI / Anthropic API key for premium quality
+  # Set via environment variables or UI settings:
+  #   GENERATOR_API_BASE=https://api.groq.com/openai/v1
+  #   GENERATOR_API_KEY=gsk_...
+  #   GENERATOR_MODEL=llama-3.1-70b-versatile
+
+# FAISS index location
+index_dir: ./data/index
+
+# HuggingFace Dataset for persistent paper data
+hf_dataset_id: ""  # e.g., your-username/arxiv-papers-index
