@@ -15,9 +15,13 @@ import json
 import os
 import re
 from datetime import date, timedelta
+from pathlib import Path
 
 import requests
 import streamlit as st
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GITHUB_REPO = os.getenv("GITHUB_REPO", "")
