@@ -92,11 +92,11 @@ contextual-arxiv-feed validate-config
 
 ## 2. Backfill (Historical Ingestion)
 
-Three modes for ingesting papers from the past. Backfill never posts to Reddit — silent ingestion only.
+Three modes for ingesting papers from the past. Backfill never posts to Reddit — silent ingestion only. Papers are sorted by citation count (OpenAlex) before processing. If a run approaches the 2h30m time limit, it auto-creates a continuation issue with remaining paper IDs.
 
 ### Date range
 
-Searches arXiv for papers updated within the given range (inclusive on both sides).
+Searches arXiv for papers updated within the given range (inclusive on both sides). Papers are sorted by citation count (OpenAlex) so the most impactful papers are processed first.
 
 ```bash
 contextual-arxiv-feed backfill --start 2026-01-01 --end 2026-01-31
@@ -106,6 +106,18 @@ contextual-arxiv-feed backfill --start 2026-01-01 --end 2026-01-31
 contextual-arxiv-feed backfill --start 2026-03-01 --end 2026-03-03 --dry-run
 ```
 
+#### Top-N selection
+
+Limit to the top N most-cited papers per month or year:
+
+```bash
+contextual-arxiv-feed backfill --start 2024-01-01 --end 2024-12-31 --top-n 50 --top-n-granularity month
+```
+
+```bash
+contextual-arxiv-feed backfill --start 2024-01-01 --end 2024-12-31 --top-n 100 --top-n-granularity year
+```
+
 ### Single date
 
 ```bash
@@ -113,7 +125,7 @@ contextual-arxiv-feed backfill-date --date 2026-03-10
 ```
 
 ```bash
-contextual-arxiv-feed backfill-date --date 2026-03-10 --dry-run
+contextual-arxiv-feed backfill-date --date 2026-03-10 --top-n 20 --dry-run
 ```
 
 ### Specific papers by identifier
@@ -154,8 +166,8 @@ streamlit run streamlit_backfill/app.py
 
 Features:
 - Three modes: Single Date, Date Range, Identifiers (with validation preview)
+- Top-N selection: limit to top N papers by citations per month or year
 - Creates issue with labels `backfill` + `streamlit-request`
-- Monochrome theme (white/black, monospace)
 - JSON payload in issue body, parseable by backfill workflow
 
 #### Issue Payload Schema
@@ -167,6 +179,8 @@ Features:
   "start_date": "2026-03-01",
   "end_date": "2026-03-05",
   "identifiers": [],
+  "top_n": 50,
+  "top_n_granularity": "month",
   "dry_run": false,
   "note": "Requested historical ingest"
 }
@@ -238,7 +252,7 @@ Posts top daily papers to your subreddit. Daily pipeline only — backfill never
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | [daily.yml](.github/workflows/daily.yml) | Daily 06:00 UTC + manual | Full daily pipeline |
-| [backfill.yml](.github/workflows/backfill.yml) | Manual only | Backfill from dispatch inputs or GitHub Issue |
+| [backfill.yml](.github/workflows/backfill.yml) | Issue (label: `backfill`) + manual | Backfill from dispatch inputs or GitHub Issue |
 | [weekly_updates.yml](.github/workflows/weekly_updates.yml) | Sunday 08:00 UTC | Version checks + DOI enrichment |
 | [weekly_citations.yml](.github/workflows/weekly_citations.yml) | Saturday 10:00 UTC | Citation count refresh |
 | [config_from_issue.yml](.github/workflows/config_from_issue.yml) | Issue with config labels | Validate & create PR |
