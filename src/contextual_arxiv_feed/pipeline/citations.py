@@ -123,14 +123,56 @@ class OpenAlexClient:
             time.sleep(min_interval - elapsed)
         self._last_request = time.monotonic()
 
-    def _get_current_key(self) -> str:
-        """Get current API key, preferring pool over single key."""
-        if self._key_pool:
-            return self._key_pool.get_key() or self._api_key
-        return self._api_key
+    def _build_url(self, base_url: str, api_key: str) -> str:
+        """Build URL with api_key query parameter (OpenAlex auth method)."""
+        if api_key:
+            sep = "&" if "?" in base_url else "?"
+            return f"{base_url}{sep}api_key={api_key}"
+        return base_url
+
+    def _request_with_key_rotation(self, base_url: str) -> httpx.Response | None:
+        """Make request, rotating through all API keys on 429.
+
+        Exhausts every key in the pool before giving up (like LLM judge).
+
+        Args:
+            base_url: URL without api_key param.
+
+        Returns:
+            Successful response or None if all keys exhausted.
+        """
+        if not self._key_pool or self._key_pool.size == 0:
+            # No pool, use single key
+            self._wait_for_rate_limit()
+            url = self._build_url(base_url, self._api_key)
+            return self._client.get(url)
+
+        # Try all keys in pool
+        while True:
+            api_key = self._key_pool.get_key()
+            if api_key is None:
+                # All keys exhausted, try without key as last resort
+                logger.warning("All OpenAlex API keys exhausted, trying without key")
+                self._wait_for_rate_limit()
+                return self._client.get(base_url)
+
+            self._wait_for_rate_limit()
+            url = self._build_url(base_url, api_key)
+            response = self._client.get(url)
+
+            if response.status_code == 429:
+                self._key_pool.report_rate_limit(api_key)
+                logger.info(f"OpenAlex 429, rotating key ...{api_key[-4:]}")
+                continue
+
+            self._key_pool.report_success(api_key)
+            return response
 
     def get_by_doi(self, doi: str) -> CitationData | None:
         """Get citation data by DOI.
+
+        Uses api_key query param (OpenAlex auth). Rotates through all
+        API keys on 429 before giving up.
 
         Args:
             doi: Paper DOI.
@@ -138,29 +180,12 @@ class OpenAlexClient:
         Returns:
             CitationData or None if not found.
         """
-        self._wait_for_rate_limit()
-
-        # Build URL
-        url = f"{self.BASE_URL}/works/doi:{doi}"
-        current_key = self._get_current_key()
-        headers = {}
-        if current_key:
-            headers["Authorization"] = f"Bearer {current_key}"
+        base_url = f"{self.BASE_URL}/works/doi:{doi}"
 
         try:
-            response = self._client.get(url, headers=headers)
-
-            # Handle rate limit with key rotation
-            if response.status_code == 429 and self._key_pool and current_key:
-                self._key_pool.report_rate_limit(current_key)
-                # Retry with next key
-                next_key = self._key_pool.get_key()
-                if next_key:
-                    headers["Authorization"] = f"Bearer {next_key}"
-                    self._wait_for_rate_limit()
-                    response = self._client.get(url, headers=headers)
-                    if response.status_code == 200:
-                        self._key_pool.report_success(next_key)
+            response = self._request_with_key_rotation(base_url)
+            if response is None:
+                return None
 
             if response.status_code == 404:
                 logger.debug(f"DOI not found in OpenAlex: {doi}")
@@ -169,9 +194,6 @@ class OpenAlexClient:
             if response.status_code != 200:
                 logger.warning(f"OpenAlex error: {response.status_code}")
                 return None
-
-            if self._key_pool and current_key:
-                self._key_pool.report_success(current_key)
 
             data = response.json()
 
@@ -289,14 +311,12 @@ class CitationsRefresh:
                 config.contextual_base_url,
             )
 
-        # Initialize key rotator for multi-key support
         from contextual_arxiv_feed.keys.rotator import KeyRotator
 
         self._rotator = KeyRotator.from_environment(
             cooldown_seconds=config.sources.key_cooldown_seconds
         )
 
-        # Initialize OpenAlex client with key pool
         self._openalex: OpenAlexClient | None = None
         if config.sources.enable_openalex:
             self._openalex = OpenAlexClient(
@@ -331,7 +351,6 @@ class CitationsRefresh:
 
         logger.info(f"Starting citations refresh run {stats.run_id}")
 
-        # Get all documents
         if not self._contextual:
             logger.info("[DRY RUN] Would refresh citations")
             stats.finished_at = datetime.utcnow()
@@ -340,7 +359,6 @@ class CitationsRefresh:
         doc_names = self._contextual.list_documents(prefix="arxiv:")
         stats.total_documents = len(doc_names)
 
-        # Process each document
         for name in doc_names:
             info = parse_document_name(name)
             if not info or info.is_manifest:
@@ -374,7 +392,6 @@ class CitationsRefresh:
         """
         result = RefreshResult(arxiv_id=arxiv_id, version=version, doi="")
 
-        # Get document metadata
         doc = self._contextual.get_document(doc_name)
         if not doc:
             result.error = "Document not found"
@@ -390,7 +407,6 @@ class CitationsRefresh:
 
         stats.documents_with_doi += 1
 
-        # Get citation data
         citation_data = self._get_citations(doi)
         if not citation_data:
             result.error = "Failed to fetch citations"
@@ -399,22 +415,30 @@ class CitationsRefresh:
 
         result.citation_data = citation_data
 
-        # Update metadata
         if self._dry_run:
             logger.info(f"[DRY RUN] Would update citations for {arxiv_id}")
             result.success = True
             stats.refreshed += 1
             return result
 
+        # Update packed fields in our 15-field metadata schema
+        cite_parts = [
+            f"cited={citation_data.citation_count}",
+            f"refs={citation_data.reference_count}",
+            f"updated={datetime.utcnow().strftime('%Y-%m-%d')}",
+        ]
+        venue_parts = []
+        if citation_data.venue:
+            venue_parts.append(f"venue={citation_data.venue}")
+        if citation_data.paper_type:
+            venue_parts.append(f"type={citation_data.paper_type}")
+        venue_parts.append(f"oa={'true' if citation_data.open_access else 'false'}")
+
         updates = {
-            "citation_count": citation_data.citation_count,
-            "reference_count": citation_data.reference_count,
-            "venue": citation_data.venue,
-            "citations_updated_at": datetime.utcnow().isoformat(),
-            "authors": citation_data.authors,
+            "citations": "|".join(cite_parts),
+            "venue_info": "|".join(venue_parts),
+            "authors": (citation_data.authors[:200] if citation_data.authors else ""),
             "publication_date": citation_data.publication_date,
-            "paper_type": citation_data.paper_type,
-            "open_access": citation_data.open_access,
         }
 
         if self._contextual.update_metadata(doc_name, updates):

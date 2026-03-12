@@ -1,10 +1,8 @@
-name: Daily Pipeline (Manual Fallback)
-
-# Oracle Cloud runs the full daily pipeline (analysis + ingestion).
-# This workflow exists only as a manual fallback for testing or recovery.
-# It is NOT triggered automatically.
+name: Daily Pipeline
 
 on:
+  schedule:
+    - cron: '0 6 * * *'
   workflow_dispatch: {}
 
 env:
@@ -40,6 +38,10 @@ jobs:
           LLM_SECONDARY_API_KEYS: ${{ secrets.LLM_SECONDARY_API_KEYS }}
           LLM_SECONDARY_BASE_URL: ${{ secrets.LLM_SECONDARY_BASE_URL }}
           LLM_SECONDARY_MODEL_ID: ${{ secrets.LLM_SECONDARY_MODEL_ID }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
           ARXIV_THROTTLE_SECONDS: '3'
         run: |
           contextual-arxiv-feed run-daily

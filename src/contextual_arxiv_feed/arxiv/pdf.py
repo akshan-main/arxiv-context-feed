@@ -19,10 +19,8 @@ from contextual_arxiv_feed.arxiv.throttle import ArxivThrottle, arxiv_retry, che
 
 logger = logging.getLogger(__name__)
 
-# PDF magic bytes
 PDF_MAGIC = b"%PDF"
 
-# Default max download size in MB (technical abort only)
 DEFAULT_MAX_DOWNLOAD_MB = 100
 
 
@@ -106,7 +104,6 @@ class PDFDownloader:
         self._throttle.sync_wait()
 
         try:
-            # Stream download to handle large files
             with self._client.stream("GET", pdf_url) as response:
                 check_response_status(response.status_code, pdf_url)
 
@@ -116,14 +113,12 @@ class PDFDownloader:
                         error_message=f"HTTP {response.status_code}",
                     )
 
-                # Check content type
                 content_type = response.headers.get("content-type", "")
                 if "application/pdf" not in content_type.lower():
                     # Some servers don't set content-type correctly, so we'll
                     # also check magic bytes later
                     logger.debug(f"Content-Type is {content_type}, will check magic bytes")
 
-                # Stream and accumulate bytes
                 chunks = []
                 total_size = 0
 
@@ -146,7 +141,6 @@ class PDFDownloader:
 
                 pdf_bytes = b"".join(chunks)
 
-                # Validate PDF magic bytes
                 if not pdf_bytes.startswith(PDF_MAGIC):
                     logger.error(f"Downloaded content is not a PDF: {pdf_url}")
                     return PDFDownloadResult(
@@ -221,7 +215,6 @@ def compress_pdf_bytes(pdf_bytes: bytes) -> bytes:
             page.compress_content_streams()
             writer.add_page(page)
 
-        # Remove duplicate objects
         writer.compress_identical_objects(remove_identicals=True, remove_orphans=True)
 
         output = io.BytesIO()

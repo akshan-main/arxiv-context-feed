@@ -50,7 +50,7 @@
 # On 429: rotates primary keys → secondary keys → local Qwen.
 #
 provider: cerebras
-model_id: qwen-3-235b-a22b-instruct-2507
+model_id: gpt-oss-120b
 
 # Prompt version (bumped on any template change)
 prompt_version: 4

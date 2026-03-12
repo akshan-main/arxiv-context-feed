@@ -27,7 +27,6 @@ from contextual_arxiv_feed.config import (
 
 logger = logging.getLogger(__name__)
 
-# Required labels for processing
 REQUIRED_LABELS = {"source:google-form", "config-change"}
 
 
@@ -82,12 +81,10 @@ def parse_issue_payload(issue_body: str) -> IssuePayload | None:
         IssuePayload or None if parsing fails.
     """
     try:
-        # Find JSON in issue body (might be in code block)
         json_match = re.search(r"```json\s*(.*?)\s*```", issue_body, re.DOTALL)
         if json_match:
             json_str = json_match.group(1)
         else:
-            # Try raw JSON
             json_match = re.search(r"\{.*\}", issue_body, re.DOTALL)
             if json_match:
                 json_str = json_match.group(0)
@@ -119,19 +116,15 @@ def validate_payload(payload: IssuePayload, categories: CategoriesConfig) -> Cha
         target_type=payload.target_type,
     )
 
-    # Validate target_repo
     if payload.target_repo != "contextual-arxiv-feed":
         result.add_error("target_repo", f"Expected 'contextual-arxiv-feed', got '{payload.target_repo}'")
 
-    # Validate change_type
     if payload.change_type not in ("add", "update", "remove"):
         result.add_error("change_type", f"Must be 'add', 'update', or 'remove', got '{payload.change_type}'")
 
-    # Validate target_type
     if payload.target_type not in ("topic", "judge"):
         result.add_error("target_type", f"Must be 'topic' or 'judge', got '{payload.target_type}'")
 
-    # Validate type-specific content
     if payload.target_type == "topic":
         _validate_topic_payload(payload, categories, result)
     elif payload.target_type == "judge":
@@ -156,7 +149,6 @@ def _validate_topic_payload(
         result.add_error("topic", "Topic data is required")
         return
 
-    # Validate key
     key = topic.get("key", "")
     if not key:
         result.add_error("topic.key", "Topic key is required")
@@ -166,12 +158,10 @@ def _validate_topic_payload(
             f"Key '{key}' must match pattern: lowercase alphanumeric with hyphens/underscores",
         )
 
-    # For add/update, validate required fields
     if payload.change_type in ("add", "update"):
         if not topic.get("name"):
             result.add_error("topic.name", "Topic name is required")
 
-        # Validate categories
         arxiv_categories = topic.get("arxiv_categories", [])
         for cat in arxiv_categories:
             if not categories.is_valid(cat):
@@ -180,7 +170,6 @@ def _validate_topic_payload(
                     f"Invalid arXiv category '{cat}'",
                 )
 
-        # Validate keywords/phrases (at least one required)
         keywords = topic.get("keywords", [])
         phrases = topic.get("phrases", [])
         if not keywords and not phrases:
@@ -214,7 +203,6 @@ def _validate_judge_payload(payload: IssuePayload, result: ChangeResult) -> None
                 f"Field '{key}' is not editable. Allowed: {allowed_fields}",
             )
 
-    # Validate strictness value
     if "strictness" in judge and judge["strictness"] not in ("low", "medium", "high"):
         result.add_error(
             "judge.strictness",
@@ -244,7 +232,6 @@ def apply_topic_change(
     topic_key = payload.topic_data.get("key")
 
     if payload.change_type == "add":
-        # Check if key already exists
         for t in topics:
             if t.get("key") == topic_key:
                 result.add_error("topic.key", f"Topic '{topic_key}' already exists")
@@ -257,7 +244,6 @@ def apply_topic_change(
         found = False
         for i, t in enumerate(topics):
             if t.get("key") == topic_key:
-                # Merge updates
                 topics[i] = {**t, **payload.topic_data}
                 found = True
                 result.changes_made.append(f"Updated topic '{topic_key}'")
@@ -280,7 +266,6 @@ def apply_topic_change(
             result.add_error("topic.key", f"Topic '{topic_key}' not found")
             return result
 
-    # Write updated config
     data["topics"] = topics
     with open(topics_path, "w") as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
@@ -306,18 +291,15 @@ def apply_judge_change(
     judge_path = config_dir / "judge.yaml"
     data = load_yaml(judge_path)
 
-    # Apply updates to whitelisted fields
     for key, value in payload.judge_data.items():
         old_value = data.get(key)
         data[key] = value
         result.changes_made.append(f"Updated judge.{key}: {old_value} -> {value}")
 
-    # Bump prompt_version if any change made
     if result.changes_made:
         data["prompt_version"] = data.get("prompt_version", 1) + 1
         result.changes_made.append(f"Bumped prompt_version to {data['prompt_version']}")
 
-    # Write updated config
     with open(judge_path, "w") as f:
         yaml.dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
@@ -341,7 +323,6 @@ def apply_config_change(
     Returns:
         ChangeResult with success/failure and changes.
     """
-    # Parse payload
     payload = parse_issue_payload(issue_body)
     if not payload:
         return ChangeResult(
@@ -349,17 +330,14 @@ def apply_config_change(
             errors=[ValidationError(field="payload", message="Failed to parse JSON payload")],
         )
 
-    # Load categories if not provided
     if categories is None:
         categories_data = load_yaml(config_dir / "categories.yaml")
         categories = CategoriesConfig(**categories_data)
 
-    # Validate payload
     validation = validate_payload(payload, categories)
     if not validation.success:
         return validation
 
-    # Apply change
     if payload.target_type == "topic":
         return apply_topic_change(payload, config_dir)
     elif payload.target_type == "judge":

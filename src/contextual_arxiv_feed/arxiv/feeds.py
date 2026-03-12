@@ -18,14 +18,10 @@ from contextual_arxiv_feed.arxiv.throttle import ArxivThrottle, check_response_s
 
 logger = logging.getLogger(__name__)
 
-# arXiv RSS feed URL template
 ARXIV_RSS_URL = "https://rss.arxiv.org/rss/{category}"
 
-# Regex to extract arXiv ID from entry links
-# Matches: http://arxiv.org/abs/2401.12345 or https://arxiv.org/abs/2401.12345v2
 ARXIV_ID_PATTERN = re.compile(r"arxiv\.org/abs/(\d{4}\.\d{4,5})(v\d+)?")
 
-# Regex to extract version from ID
 VERSION_PATTERN = re.compile(r"v(\d+)$")
 
 
@@ -131,7 +127,6 @@ class ArxivFeedParser:
             FeedEntry or None if parsing fails.
         """
         try:
-            # Extract arXiv ID from link
             link = entry.get("link", "")
             match = ARXIV_ID_PATTERN.search(link)
             if not match:
@@ -144,15 +139,12 @@ class ArxivFeedParser:
             if version_str:
                 version = int(version_str[1:])  # Remove 'v' prefix
 
-            # Extract title (clean up whitespace)
             title = entry.get("title", "").strip()
             title = " ".join(title.split())  # Normalize whitespace
 
-            # Extract abstract snippet from summary
             abstract_snippet = entry.get("summary", "").strip()
             abstract_snippet = " ".join(abstract_snippet.split())
 
-            # Extract categories
             categories = [source_category]
             if "tags" in entry:
                 for tag in entry.tags:
@@ -160,7 +152,6 @@ class ArxivFeedParser:
                     if term and term not in categories:
                         categories.append(term)
 
-            # Extract authors
             authors = []
             if "authors" in entry:
                 for author in entry.authors:
@@ -168,7 +159,6 @@ class ArxivFeedParser:
                     if name:
                         authors.append(name)
 
-            # Parse dates
             published = None
             updated = None
             if "published_parsed" in entry and entry.published_parsed:

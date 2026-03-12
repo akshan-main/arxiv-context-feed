@@ -76,7 +76,6 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/contextual_arxiv_feed/pipeline/backfill.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.11"

@@ -9,9 +9,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-# Top ML/AI venues (conferences and journals)
 TOP_VENUES = {
-    # Top-tier conferences
     "neurips": ["neurips", "nips", "neural information processing"],
     "icml": ["icml", "international conference on machine learning"],
     "iclr": ["iclr", "international conference on learning representations"],
@@ -29,7 +27,6 @@ TOP_VENUES = {
     "coling": ["coling", "computational linguistics"],
     "interspeech": ["interspeech"],
     "icassp": ["icassp", "acoustics, speech and signal processing"],
-    # Top-tier journals
     "nature": ["nature"],
     "science": ["science magazine", "science journal"],
     "jmlr": ["jmlr", "journal of machine learning research"],
@@ -38,7 +35,6 @@ TOP_VENUES = {
     "pami": ["pami", "pattern analysis and machine intelligence"],
 }
 
-# Acceptance indicators
 ACCEPTANCE_PATTERNS = [
     r"accepted\s+(?:at|to|by|for)\s+",
     r"to\s+appear\s+(?:at|in)\s+",
@@ -75,13 +71,11 @@ def detect_top_venue(comments: str, journal_ref: str = "") -> VenueDetectionResu
     Returns:
         VenueDetectionResult if top venue detected, None otherwise.
     """
-    # Combine and normalize text
     text = f"{comments} {journal_ref}".lower()
 
     if not text.strip():
         return None
 
-    # Check for acceptance indicator
     has_acceptance = any(re.search(pattern, text, re.IGNORECASE) for pattern in ACCEPTANCE_PATTERNS)
 
     # Even without explicit acceptance, some patterns are strong signals

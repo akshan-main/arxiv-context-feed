@@ -38,7 +38,6 @@ class KeyPool:
             keys: List of API keys (empty strings are filtered out).
             cooldown_seconds: Seconds to wait after rate limit before retrying key.
         """
-        # Filter out empty/whitespace keys
         valid_keys = [k.strip() for k in keys if k.strip()]
         self._keys = [KeyState(key=k) for k in valid_keys]
         self._cooldown = cooldown_seconds
@@ -78,6 +77,19 @@ class KeyPool:
         logger.warning("All API keys are in cooldown")
         return None
 
+    def seconds_until_next_available(self) -> float | None:
+        """Return seconds until the next key comes out of cooldown.
+
+        Returns:
+            Seconds to wait, or None if pool is empty.
+        """
+        if not self._keys:
+            return None
+        now = time.monotonic()
+        soonest = min(s.exhausted_until for s in self._keys)
+        wait = soonest - now
+        return max(0.0, wait)
+
     def report_success(self, key: str) -> None:
         """Report successful use of a key.
 
@@ -101,6 +113,22 @@ class KeyPool:
                 state.error_count += 1
                 logger.info(
                     f"Key ending ...{key[-4:]} rate limited, cooldown {self._cooldown}s"
+                )
+                break
+
+    def report_rate_limit_with_delay(self, key: str, delay_seconds: float) -> None:
+        """Report rate limit with server-specified delay.
+
+        Args:
+            key: The API key that was rate limited.
+            delay_seconds: Exact seconds to wait (from server response).
+        """
+        for state in self._keys:
+            if state.key == key:
+                state.exhausted_until = time.monotonic() + delay_seconds
+                state.error_count += 1
+                logger.info(
+                    f"Key ending ...{key[-4:]} rate limited, server says wait {delay_seconds:.0f}s"
                 )
                 break
 
@@ -154,7 +182,6 @@ class KeyRotator:
         """
         rotator = cls(cooldown_seconds)
 
-        # OpenAlex keys
         openalex_keys = os.getenv("OPENALEX_API_KEYS", "")
         if openalex_keys:
             rotator.add_pool("openalex", openalex_keys.split(","))
@@ -163,7 +190,6 @@ class KeyRotator:
             if single:
                 rotator.add_pool("openalex", [single])
 
-        # LLM keys (Cerebras / Gemini / any provider)
         llm_keys = os.getenv("LLM_API_KEYS", "")
         if llm_keys:
             rotator.add_pool("llm", llm_keys.split(","))

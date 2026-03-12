@@ -24,7 +24,6 @@ from contextual_arxiv_feed.config import TopicsConfig
 
 logger = logging.getLogger(__name__)
 
-# Regex for tokenization: extract alphabetic words
 WORD_PATTERN = re.compile(r"\b[a-zA-Z]+\b")
 
 
@@ -66,16 +65,13 @@ class KeywordMatcher:
         self._topic_data: dict[str, dict] = {}
 
         for topic in self._topics:
-            # Stem keywords for matching
             stemmed_keywords = set()
             for kw in topic.keywords:
                 stemmed = self._stem_word(kw.lower())
                 stemmed_keywords.add(stemmed)
 
-            # Store phrases as lowercase for substring matching
             phrases = [p.lower() for p in topic.phrases]
 
-            # Process negatives (both words and phrases)
             stemmed_negatives = set()
             negative_phrases = []
             for neg in topic.negatives:
@@ -122,10 +118,8 @@ class KeywordMatcher:
         Returns:
             MatchResult indicating which topics matched (if any).
         """
-        # Combine title and abstract for matching
         combined_text = f"{title} {abstract_snippet}".lower()
 
-        # Tokenize and stem for keyword matching
         tokens = self._tokenize(combined_text)
         stemmed_tokens = self._stem_tokens(tokens)
 

@@ -20,16 +20,13 @@ from contextual_arxiv_feed.arxiv.throttle import ArxivThrottle, arxiv_retry, che
 
 logger = logging.getLogger(__name__)
 
-# arXiv API endpoint
-ARXIV_API_URL = "http://export.arxiv.org/api/query"
+ARXIV_API_URL = "https://export.arxiv.org/api/query"
 
-# XML namespaces used by arXiv API
 NAMESPACES = {
     "atom": "http://www.w3.org/2005/Atom",
     "arxiv": "http://arxiv.org/schemas/atom",
 }
 
-# Regex to extract arXiv ID from various formats
 ARXIV_ID_PATTERN = re.compile(r"(\d{4}\.\d{4,5})(v\d+)?")
 
 
@@ -143,7 +140,6 @@ class ArxivAPI:
         Returns:
             ArxivMetadata or None if not found.
         """
-        # Normalize ID (remove version if present for query)
         match = ARXIV_ID_PATTERN.search(arxiv_id)
         if not match:
             logger.error(f"Invalid arXiv ID format: {arxiv_id}")
@@ -170,7 +166,6 @@ class ArxivAPI:
         if not arxiv_ids:
             return []
 
-        # API accepts comma-separated IDs
         query_params = {
             "id_list": ",".join(arxiv_ids),
             "max_results": len(arxiv_ids),
@@ -197,7 +192,6 @@ class ArxivAPI:
         Returns:
             List of ArxivMetadata objects.
         """
-        # Build search query
         date_query = f"lastUpdatedDate:[{start_date.strftime('%Y%m%d')} TO {end_date.strftime('%Y%m%d')}]"
 
         if categories:
@@ -271,7 +265,6 @@ class ArxivAPI:
             ArxivMetadata or None if parsing fails.
         """
         try:
-            # Extract ID and version
             id_elem = entry.find("atom:id", NAMESPACES)
             if id_elem is None or id_elem.text is None:
                 return None
@@ -284,17 +277,14 @@ class ArxivAPI:
             version_str = match.group(2)
             version = int(version_str[1:]) if version_str else 1
 
-            # Extract title
             title_elem = entry.find("atom:title", NAMESPACES)
             title = self._clean_text((title_elem.text or "") if title_elem is not None else "")
 
-            # Extract abstract
             summary_elem = entry.find("atom:summary", NAMESPACES)
             abstract = self._clean_text(
                 (summary_elem.text or "") if summary_elem is not None else ""
             )
 
-            # Extract authors
             authors = []
             for author_elem in entry.findall("atom:author", NAMESPACES):
                 name_elem = author_elem.find("atom:name", NAMESPACES)
@@ -308,7 +298,6 @@ class ArxivAPI:
                 if name:
                     authors.append(Author(name=name, affiliations=affiliations))
 
-            # Extract categories
             categories = []
             primary_category = ""
             for cat_elem in entry.findall("atom:category", NAMESPACES):
@@ -331,7 +320,6 @@ class ArxivAPI:
                     if term not in categories:
                         categories.insert(0, term)
 
-            # Extract dates
             published = None
             updated = None
             pub_elem = entry.find("atom:published", NAMESPACES)
@@ -341,25 +329,21 @@ class ArxivAPI:
             if upd_elem is not None and upd_elem.text:
                 updated = self._parse_datetime(upd_elem.text)
 
-            # Extract DOI
             doi = ""
             doi_elem = entry.find("arxiv:doi", NAMESPACES)
             if doi_elem is not None and doi_elem.text:
                 doi = doi_elem.text.strip()
 
-            # Extract journal reference
             journal_ref = ""
             jr_elem = entry.find("arxiv:journal_ref", NAMESPACES)
             if jr_elem is not None and jr_elem.text:
                 journal_ref = jr_elem.text.strip()
 
-            # Extract comments
             comments = ""
             cm_elem = entry.find("arxiv:comment", NAMESPACES)
             if cm_elem is not None and cm_elem.text:
                 comments = cm_elem.text.strip()
 
-            # Extract links
             links = {}
             for link_elem in entry.findall("atom:link", NAMESPACES):
                 rel = link_elem.get("rel", "")
@@ -393,13 +377,11 @@ class ArxivAPI:
         """Clean and normalize text content."""
         if not text:
             return ""
-        # Normalize whitespace
         return " ".join(text.split())
 
     def _parse_datetime(self, dt_str: str) -> datetime | None:
         """Parse ISO datetime string."""
         try:
-            # Handle various formats
             dt_str = dt_str.strip()
             if dt_str.endswith("Z"):
                 dt_str = dt_str[:-1] + "+00:00"

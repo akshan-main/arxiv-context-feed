@@ -20,6 +20,7 @@ IMPORTANT: Ingest ALL accepted papers. No quality-based capping.
 from __future__ import annotations
 
 import logging
+import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -132,7 +133,6 @@ class DailyPipeline:
         self._config = config
         self._dry_run = dry_run or config.dry_run
 
-        # Initialize components
         self._throttle = ArxivThrottle(config.arxiv_throttle_seconds)
         self._feed_parser = ArxivFeedParser(self._throttle)
         self._api = ArxivAPI(self._throttle)
@@ -155,9 +155,10 @@ class DailyPipeline:
             topics=config.topics.get_enabled_topics(),
         )
 
-        # ChromaDB: always initialized (chatbot's free database)
+        # ChromaDB: only if persistent storage is configured
+        # Skip on GitHub Actions where there's no persistent ChromaDB
         self._chromadb: ChromaDBStore | None = None
-        if not self._dry_run:
+        if not self._dry_run and (os.getenv("CHROMADB_HOST") or os.getenv("CHROMADB_PERSIST_DIR")):
             self._chromadb = ChromaDBStore()
 
         # Contextual AI: optional, only if API key is set
@@ -168,8 +169,7 @@ class DailyPipeline:
                 config.contextual_datastore_id,
                 config.contextual_base_url,
             )
-            # Ensure datastore is configured for text-only ingestion (Basic tier, $3/1K pages)
-            self._contextual.configure_text_only_ingestion()
+            self._contextual.configure_standard_ingestion()
 
     def close(self) -> None:
         """Close all resources."""
@@ -202,20 +202,17 @@ class DailyPipeline:
 
         logger.info(f"Starting daily pipeline run {stats.run_id}")
 
-        # Get categories from enabled topics
         categories = self._get_categories()
         if not categories:
             logger.warning("No categories to fetch. Check topics config.")
             stats.finished_at = datetime.utcnow()
             return stats
 
-        # Step 1: Fetch RSS feeds
         logger.info(f"Fetching RSS feeds for {len(categories)} categories")
         entries = self._feed_parser.fetch_multiple_feeds(categories)
         stats.candidates_total = len(entries)
         logger.info(f"Found {len(entries)} unique papers")
 
-        # Stage 1: keyword matching + Stage 1.5: Discovery Agent
         stage1_failed_entries = []
         for entry in entries:
             match_result = self._matcher.match(entry.title, entry.abstract_snippet)
@@ -226,7 +223,6 @@ class DailyPipeline:
                 stage1_failed_entries.append(entry)
                 stats.stage1_failed += 1
 
-        # Stage 1.5: Discovery Agent on papers that failed keywords
         if self._discovery_agent and stage1_failed_entries:
             logger.info(f"Running Discovery Agent on {len(stage1_failed_entries)} papers")
             for entry in stage1_failed_entries:
@@ -291,35 +287,26 @@ class DailyPipeline:
         result.stage1_topics = match_result.matched_topics
         stats.stage1_passed += 1
 
-        # Check idempotency
         if self._check_exists(entry.arxiv_id, entry.version):
             result.skipped_exists = True
             stats.already_exists += 1
             logger.debug(f"Already exists: {entry.arxiv_id}v{entry.version}")
             return result
 
-        # Fetch full metadata from arXiv API
         metadata = self._api.fetch_by_id(entry.id_with_version)
         if not metadata:
             result.error = "Failed to fetch metadata"
             logger.warning(f"Failed to fetch metadata for {entry.arxiv_id}")
             return result
 
-        # Store metadata on result (used by run-analyze for decisions payload)
         result.metadata = metadata
 
-        # ============================================================
-        # AUTO-INGEST CHECKS (skip LLM judge if passed)
-        # ============================================================
-
-        # Auto-ingest: Revised version (v2+)
         if entry.version >= 2:
             result.auto_ingest_reason = "revised_version"
             stats.auto_ingest_revised += 1
             logger.info(f"Auto-ingest (revised v{entry.version}): {entry.arxiv_id}")
             return self._download_and_ingest(entry, metadata, result, stats, auto_ingest=True)
 
-        # Auto-ingest: Top venue accepted
         venue_result = detect_top_venue(metadata.comments, metadata.journal_ref)
         if venue_result and venue_result.detected:
             result.auto_ingest_reason = "top_venue"
@@ -327,10 +314,6 @@ class DailyPipeline:
             stats.auto_ingest_venue += 1
             logger.info(f"Auto-ingest (venue: {venue_result.venue_display}): {entry.arxiv_id}")
             return self._download_and_ingest(entry, metadata, result, stats, auto_ingest=True)
-
-        # ============================================================
-        # STAGE 2: LLM JUDGE (with confidence-based rejection)
-        # ============================================================
 
         judge_result = self._judge.judge(metadata.title, metadata.abstract)
         if not judge_result.success:
@@ -345,8 +328,6 @@ class DailyPipeline:
         result.stage2_passed = True
         stats.stage2_passed += 1
 
-        # Acceptance logic (topicality already confirmed by Stage 1 + Discovery Agent):
-        # Accept if quality >= 65 OR confidence < 80 (benefit of doubt)
         output = judge_result.output
         quality_ok = output.quality_i >= 65
         low_confidence = output.confidence_i < 80
@@ -369,7 +350,6 @@ class DailyPipeline:
             )
             return result
 
-        # Paper accepted - download and ingest
         return self._download_and_ingest(entry, metadata, result, stats, auto_ingest=False)
 
     def _download_and_ingest(
@@ -382,7 +362,7 @@ class DailyPipeline:
     ) -> PaperResult:
         """Download PDF and store in ChromaDB + optionally Contextual AI.
 
-        ChromaDB storage ALWAYS happens (chatbot's free database, no cap).
+        ChromaDB storage ALWAYS happens (no cap).
         Contextual AI ingestion only happens if API key is configured
         AND the daily cap hasn't been reached.
 
@@ -396,7 +376,6 @@ class DailyPipeline:
         Returns:
             Updated PaperResult.
         """
-        # Dry run: skip everything
         if self._dry_run:
             reason = result.auto_ingest_reason or "judge_accepted"
             logger.info(f"[DRY RUN] Would ingest ({reason}): {entry.arxiv_id}v{entry.version}")
@@ -404,7 +383,6 @@ class DailyPipeline:
             stats.ingested += 1
             return result
 
-        # Build judge output
         judge_output: JudgeOutput
         if auto_ingest and result.judge_output is None:
             judge_output = self._create_auto_ingest_judge_output(result)
@@ -412,7 +390,6 @@ class DailyPipeline:
             assert result.judge_output is not None
             judge_output = result.judge_output
 
-        # Download PDF
         pdf_result = self._pdf_downloader.download(metadata.pdf_url)
         if not pdf_result.success:
             result.download_failed = True
@@ -421,7 +398,6 @@ class DailyPipeline:
             logger.error(f"Download failed for {entry.arxiv_id}: {pdf_result.error_message}")
             return result
 
-        # Compress PDF
         from contextual_arxiv_feed.arxiv.pdf import compress_pdf_bytes
 
         original_size = len(pdf_result.pdf_bytes)
@@ -435,7 +411,7 @@ class DailyPipeline:
         else:
             pdf_bytes = pdf_result.pdf_bytes
 
-        # ---- ChromaDB: ALWAYS store, NO cap (chatbot's free database) ----
+        # ---- ChromaDB: ALWAYS store, NO cap ----
         if self._chromadb:
             try:
                 authors_str = "|".join(a.name for a in metadata.authors)
@@ -513,10 +489,8 @@ class DailyPipeline:
         """Check if paper already exists in any datastore."""
         if self._dry_run:
             return False
-        # Check ChromaDB first (always available)
         if self._chromadb and self._chromadb.paper_exists(arxiv_id, version):
             return True
-        # Also check Contextual AI if configured
         return bool(self._contextual and self._contextual.document_exists(arxiv_id, version))
 
     def _delete_old_versions(self, arxiv_id: str, new_version: int) -> int:
@@ -532,7 +506,6 @@ class DailyPipeline:
         if self._dry_run or not self._contextual:
             return 0
 
-        # List all documents for this paper (all versions)
         prefix = f"arxiv:{arxiv_id}v"
         existing = self._contextual.list_documents(prefix=prefix)
 
@@ -568,10 +541,8 @@ class DailyPipeline:
         Returns:
             True if both ingests succeeded.
         """
-        # Build custom_metadata (flat, primitives only)
         custom_metadata = self._build_custom_metadata(metadata, judge_output, topics or [])
 
-        # Ingest PDF
         pdf_result = self._contextual.ingest_pdf(
             metadata.arxiv_id,
             metadata.version,
@@ -582,21 +553,8 @@ class DailyPipeline:
             logger.error(f"PDF ingest failed: {pdf_result.error}")
             return False
 
-        # Build manifest content
-        manifest_content = self._build_manifest(metadata, judge_output, stats.run_id)
-
-        # Ingest manifest
-        manifest_result = self._contextual.ingest_manifest(
-            metadata.arxiv_id,
-            metadata.version,
-            manifest_content,
-            custom_metadata,
-        )
-        if not manifest_result.success:
-            logger.error(f"Manifest ingest failed: {manifest_result.error}")
-            # PDF was already ingested, but manifest failed
-            # This is a partial failure state
-            return False
+        # No manifest ingestion — PDF + metadata is sufficient for RAG retrieval.
+        # Judge scores and full metadata are in the 'source' field and audit logs.
 
         logger.info(f"Ingested: {metadata.arxiv_id}v{metadata.version}")
         return True
@@ -607,43 +565,32 @@ class DailyPipeline:
         judge_output: JudgeOutput,
         topics: list[str],
     ) -> dict[str, Any]:
-        """Build custom_metadata dict (flat, primitives only, ALL INTS).
+        """Build custom_metadata dict for Contextual AI ingestion."""
+        from contextual_arxiv_feed.contextual.metadata import build_paper_metadata
 
-        Args:
-            metadata: arXiv metadata.
-            judge_output: Judge result.
-            topics: Topic keys from Stage 1 keyword matcher.
-
-        Returns:
-            Flat dict with primitive values only.
-        """
         breakdown = judge_output.quality_breakdown_i
-        return {
-            "arxiv_id": metadata.arxiv_id,
-            "arxiv_version": metadata.version,
-            "title": metadata.title,
-            "primary_category": metadata.primary_category,
-            "categories": "|".join(metadata.categories),
-            "doi": metadata.doi or "",
-            "year": metadata.year,
-            "topics": "|".join(topics),
-            "quality_verdict": judge_output.quality_verdict,
-            "quality_i": judge_output.quality_i,
-            "novelty_i": breakdown.novelty_i,
-            "relevance_i": breakdown.relevance_i,
-            "technical_depth_i": breakdown.technical_depth_i,
-            "confidence_i": judge_output.confidence_i,
-            "citation_count": 0,
-            "reference_count": 0,
-            "venue": "",
-            "citations_updated_at": "",
-            "authors": "",  # Populated by citations refresh (OpenAlex/S2)
-            "publication_date": "",  # Populated by citations refresh
-            "paper_type": "",  # Populated by citations refresh
-            "open_access": False,  # Populated by citations refresh
-            "judge_model_id": judge_output.model_id,
-            "judge_prompt_version": judge_output.prompt_version,
-        }
+        authors_str = "|".join(a.name for a in metadata.authors)
+        pub_date = metadata.published.strftime("%Y-%m-%d") if metadata.published else ""
+
+        return build_paper_metadata(
+            arxiv_id=metadata.arxiv_id,
+            version=metadata.version,
+            title=metadata.title,
+            categories=metadata.categories,
+            primary_category=metadata.primary_category,
+            authors=authors_str,
+            publication_date=pub_date,
+            doi=metadata.doi or "",
+            journal_ref=metadata.journal_ref or "",
+            comments=metadata.comments or "",
+            topics=topics,
+            quality_verdict=judge_output.quality_verdict,
+            quality_i=judge_output.quality_i,
+            novelty_i=breakdown.novelty_i,
+            relevance_i=breakdown.relevance_i,
+            technical_depth_i=breakdown.technical_depth_i,
+            confidence_i=judge_output.confidence_i,
+        )
 
     def _build_manifest(
         self, metadata: ArxivMetadata, judge_output: JudgeOutput, run_id: str

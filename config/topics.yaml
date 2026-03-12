@@ -212,7 +212,9 @@ topics:
     name: LLM Agents, Tool Use & Multi-Agent Systems
     description: >
       Research on LLM-based agents, tool use, planning, multi-agent systems,
-      agent architectures, scaffolding, and agent memory management.
+      agent architectures, scaffolding, agent memory management, agent
+      harnesses (control planes for governing agent execution), and
+      open-source agent frameworks (OpenClaw, etc.).
     arxiv_categories:
       - cs.AI
       - cs.CL
@@ -226,6 +228,9 @@ topics:
       - orchestration
       - scaffold
       - scaffolding
+      - openclaw
+      - clawdbot
+      - moltbot
     phrases:
       - language agent
       - llm agent
@@ -251,6 +256,18 @@ topics:
       - agent evaluation
       - agent benchmark
       - step by step
+      # Agent harness — control plane / governance
+      - agent harness
+      - agent control plane
+      - agent governance
+      - agent guardrail
+      - agent safety
+      - agent monitoring
+      - agent observability
+      - agent orchestration
+      - execution harness
+      - skill marketplace
+      - agent sandbox
     negatives:
       - reinforcement learning agent
       - game agent
@@ -259,8 +276,13 @@ topics:
     inclusion_notes: >
       Include papers on LLM-based agents, tool integration, agent
       scaffolding patterns, memory management for agents, and multi-agent
-      coordination. Papers describing agent architectures with different
-      terminology should be included.
+      coordination. Include papers on agent harnesses — the control plane
+      infrastructure that governs agent execution, including monitoring,
+      guardrails, sandboxing, permission models, and orchestration of
+      long-running agent tasks. Include papers on open-source agent
+      frameworks like OpenClaw and their security/governance implications.
+      Papers describing agent architectures with different terminology
+      should be included.
     exclusion_notes: >
       Exclude traditional RL agents without LLM components.
       Exclude game-playing AI and non-LLM robotics.

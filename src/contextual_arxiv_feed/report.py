@@ -16,7 +16,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Default artifacts directory
 ARTIFACTS_DIR = Path("artifacts")
 
 
@@ -48,7 +47,6 @@ def generate_json_report(
         "stats": stats.to_dict(),
     }
 
-    # Add top accepted papers for daily/updates
     if hasattr(stats, "results"):
         accepted = [
             {
@@ -63,7 +61,6 @@ def generate_json_report(
         ][:20]
         report["top_accepted"] = accepted
 
-        # Rejection reasons breakdown
         rejection_reasons = {}
         for r in stats.results:
             if hasattr(r, "stage1_passed") and not r.stage1_passed:
@@ -111,13 +108,11 @@ def generate_markdown_report(
         "",
     ]
 
-    # Add stats based on pipeline type
     stats_dict = stats.to_dict()
     for key, value in stats_dict.items():
         if key not in ("run_id", "started_at", "finished_at", "results"):
             lines.append(f"- **{key.replace('_', ' ').title()}:** {value}")
 
-    # Add top accepted papers
     if hasattr(stats, "results"):
         accepted = [r for r in stats.results if hasattr(r, "ingested") and r.ingested]
         if accepted:
@@ -137,7 +132,6 @@ def generate_markdown_report(
                 else:
                     lines.append(f"- **{r.arxiv_id}v{r.version}** - {title[:60]}...")
 
-        # Failed downloads/ingests
         failed_downloads = [r for r in stats.results if hasattr(r, "download_failed") and r.download_failed]
         if failed_downloads:
             lines.extend([

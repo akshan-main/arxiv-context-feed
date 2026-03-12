@@ -14,7 +14,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-# Document name patterns
 PDF_DOC_PATTERN = re.compile(r"^arxiv:(\d{4}\.\d{4,5})v(\d+)$")
 MANIFEST_DOC_PATTERN = re.compile(r"^arxiv:(\d{4}\.\d{4,5})v(\d+):manifest$")
 
@@ -93,7 +92,6 @@ def parse_document_name(name: str) -> DocumentNameInfo | None:
     Returns:
         DocumentNameInfo or None if name doesn't match expected format.
     """
-    # Try manifest pattern first
     match = MANIFEST_DOC_PATTERN.match(name)
     if match:
         return DocumentNameInfo(
@@ -102,7 +100,6 @@ def parse_document_name(name: str) -> DocumentNameInfo | None:
             is_manifest=True,
         )
 
-    # Try PDF pattern
     match = PDF_DOC_PATTERN.match(name)
     if match:
         return DocumentNameInfo(

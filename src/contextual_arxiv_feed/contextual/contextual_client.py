@@ -103,30 +103,57 @@ class ContextualClient:
     def configure_text_only_ingestion(self) -> bool:
         """Configure datastore for text-only ingestion (Basic tier, $3/1K pages).
 
-        Sets ingestion_tier to null and figure_caption_mode to ignore
-        at the datastore level. Call once during setup.
+        Sets parse_mode to basic. Call once during setup.
 
         Returns:
             True if configuration succeeded.
         """
-        logger.info("Configuring datastore for text-only ingestion (Basic tier)")
+        return self._configure_parsing(parse_mode="basic")
+
+    def configure_standard_ingestion(self) -> bool:
+        """Configure datastore for standard ingestion ($40/1K pages).
+
+        Sets parse_mode to standard with figure captions enabled.
+        Handles images, figures, tables, and complex layouts — essential
+        for arXiv papers.
+
+        Returns:
+            True if configuration succeeded.
+        """
+        return self._configure_parsing(
+            parse_mode="standard",
+            figure_caption_mode="detailed",
+        )
+
+    def _configure_parsing(
+        self,
+        parse_mode: str = "basic",
+        figure_caption_mode: str | None = None,
+    ) -> bool:
+        """Configure datastore parsing settings.
+
+        Args:
+            parse_mode: "basic" ($3/1K) or "standard" ($40/1K).
+            figure_caption_mode: "concise" or "detailed" (standard only).
+
+        Returns:
+            True if configuration succeeded.
+        """
+        parsing_config: dict[str, Any] = {"parse_mode": parse_mode}
+        if figure_caption_mode:
+            parsing_config["figure_caption_mode"] = figure_caption_mode
+
+        logger.info(f"Configuring datastore parsing: {parsing_config}")
 
         try:
             response = self._client.put(
                 self._datastore_url(),
                 headers={**self._headers, "Content-Type": "application/json"},
-                json={
-                    "configuration": {
-                        "parsing": {
-                            "figure_caption_mode": "ignore",
-                            "ingestion_tier": None,
-                        }
-                    }
-                },
+                json={"configuration": {"parsing": parsing_config}},
             )
 
             if response.status_code in (200, 204):
-                logger.info("Datastore configured for text-only ingestion")
+                logger.info(f"Datastore configured: parse_mode={parse_mode}")
                 return True
             else:
                 logger.error(
@@ -160,24 +187,16 @@ class ContextualClient:
         document_name = build_document_name(arxiv_id, version)
         logger.info(f"Ingesting PDF: {document_name}")
 
-        # Validate metadata is flat and primitive-only
         self._validate_metadata(custom_metadata)
 
         try:
-            # Prepare multipart form data
             files = {
                 "file": (f"{arxiv_id}v{version}.pdf", pdf_bytes, "application/pdf"),
             }
-            # Text-only ingestion: Basic tier ($3/1K pages).
-            # figure_caption_mode=ignore skips VLM figure processing.
-            # Datastore must also have ingestion_tier=null (call configure_text_only_ingestion once).
-            ingestion_config = {
-                "figure_caption_mode": "ignore",
-            }
+            # Text-only config is set at datastore level (configure_text_only_ingestion).
+            # No per-document configuration needed.
             data = {
-                "document_name": document_name,
-                "metadata": json.dumps(custom_metadata),
-                "configuration": json.dumps(ingestion_config),
+                "metadata": json.dumps({"custom_metadata": custom_metadata}),
             }
 
             response = self._client.post(
@@ -191,7 +210,7 @@ class ContextualClient:
                 result = response.json()
                 return IngestResult(
                     success=True,
-                    document_id=result.get("document_id", ""),
+                    document_id=result.get("id", ""),
                     document_name=document_name,
                 )
             else:
@@ -230,28 +249,20 @@ class ContextualClient:
         document_name = build_manifest_name(arxiv_id, version)
         logger.info(f"Ingesting manifest: {document_name}")
 
-        # Validate metadata is flat and primitive-only
         self._validate_metadata(custom_metadata)
 
         try:
-            # Convert manifest to JSON text
             manifest_json = json.dumps(manifest_content, indent=2, default=str)
 
-            # Prepare multipart form data
             files = {
                 "file": (
-                    f"{arxiv_id}v{version}_manifest.json",
-                    manifest_json.encode("utf-8"),
-                    "application/json",
+                    f"{arxiv_id}v{version}_manifest.html",
+                    f"<pre>{manifest_json}</pre>".encode(),
+                    "text/html",
                 ),
             }
-            ingestion_config = {
-                "figure_caption_mode": "ignore",
-            }
             data = {
-                "document_name": document_name,
-                "metadata": json.dumps(custom_metadata),
-                "configuration": json.dumps(ingestion_config),
+                "metadata": json.dumps({"custom_metadata": custom_metadata}),
             }
 
             response = self._client.post(
@@ -265,7 +276,7 @@ class ContextualClient:
                 result = response.json()
                 return IngestResult(
                     success=True,
-                    document_id=result.get("document_id", ""),
+                    document_id=result.get("id", ""),
                     document_name=document_name,
                 )
             else:
@@ -339,7 +350,6 @@ class ContextualClient:
             DocumentInfo or None if not found.
         """
         try:
-            # List with exact prefix
             response = self._client.get(
                 self._documents_url(),
                 headers=self._headers,
@@ -420,17 +430,14 @@ class ContextualClient:
         """
         logger.info(f"Updating metadata for: {document_name}")
 
-        # Validate updates are flat and primitive-only
         self._validate_metadata(metadata_updates)
 
         try:
-            # First get the document to find its ID
             doc = self.get_document(document_name)
             if not doc:
                 logger.error(f"Document not found: {document_name}")
                 return False
 
-            # Merge with existing metadata
             merged = {**doc.metadata, **metadata_updates}
 
             response = self._client.patch(

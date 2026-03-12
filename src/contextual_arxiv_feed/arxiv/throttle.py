@@ -83,7 +83,6 @@ def create_retry_decorator(max_attempts: int = 5):
     )
 
 
-# Pre-configured retry decorator for common use
 arxiv_retry = create_retry_decorator()
 
 

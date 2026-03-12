@@ -1,0 +1,124 @@
+name: Backfill Pipeline
+
+permissions:
+  issues: write
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Backfill mode'
+        required: true
+        type: choice
+        options:
+          - single_date
+          - date_range
+          - identifiers
+        default: single_date
+      date:
+        description: 'Single date (YYYY-MM-DD)'
+        required: false
+      start_date:
+        description: 'Range start (YYYY-MM-DD)'
+        required: false
+      end_date:
+        description: 'Range end (YYYY-MM-DD)'
+        required: false
+      identifiers:
+        description: 'Comma-separated arXiv IDs, DOIs, or URLs'
+        required: false
+      dry_run:
+        description: 'Dry run (no actual ingestion)'
+        type: boolean
+        default: false
+      issue_number:
+        description: 'GitHub Issue number (reads payload from issue body)'
+        required: false
+
+concurrency:
+  group: backfill
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Parse inputs
+        id: parse
+        env:
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_START_DATE: ${{ inputs.start_date }}
+          INPUT_END_DATE: ${{ inputs.end_date }}
+          INPUT_IDENTIFIERS: ${{ inputs.identifiers }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python backfill/parse_inputs.py
+
+      - name: Run backfill
+        env:
+          CONTEXTUAL_API_KEY: ${{ secrets.CONTEXTUAL_API_KEY }}
+          CONTEXTUAL_DATASTORE_ID: ${{ secrets.CONTEXTUAL_DATASTORE_ID }}
+          CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
+          LLM_API_KEYS: ${{ secrets.LLM_API_KEYS }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_SECONDARY_API_KEYS: ${{ secrets.LLM_SECONDARY_API_KEYS }}
+          LLM_SECONDARY_BASE_URL: ${{ secrets.LLM_SECONDARY_BASE_URL }}
+          LLM_SECONDARY_MODEL_ID: ${{ secrets.LLM_SECONDARY_MODEL_ID }}
+          ARXIV_THROTTLE_SECONDS: '3'
+        run: |
+          ${{ steps.parse.outputs.command }}
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backfill-run-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Comment on issue
+        if: ${{ steps.parse.outputs.issue_number != '' && always() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATUS="${{ job.status }}"
+          SUMMARY="Backfill workflow **${STATUS}**."
+          if [ -f artifacts/run_summary.md ]; then
+            SUMMARY="${SUMMARY}\n\n$(cat artifacts/run_summary.md)"
+          fi
+          gh issue comment "${{ steps.parse.outputs.issue_number }}" \
+            --body "$(echo -e "${SUMMARY}")"
+
+      - name: Summary
+        run: |
+          echo "## Backfill Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f artifacts/run_summary.md ]; then
+            cat artifacts/run_summary.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No summary generated" >> $GITHUB_STEP_SUMMARY
+          fi

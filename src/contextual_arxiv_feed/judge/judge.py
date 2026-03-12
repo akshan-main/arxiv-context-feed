@@ -15,7 +15,6 @@ from contextual_arxiv_feed.judge.schema import JudgeOutput
 
 logger = logging.getLogger(__name__)
 
-# Path to prompt templates
 TEMPLATES_DIR = Path(__file__).parent / "prompt_templates"
 
 

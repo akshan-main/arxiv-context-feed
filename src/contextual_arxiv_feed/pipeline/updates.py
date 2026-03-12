@@ -106,7 +106,6 @@ class UpdatesPipeline:
         self._lookback_days = lookback_days
         self._dry_run = dry_run or config.dry_run
 
-        # Initialize components
         self._throttle = ArxivThrottle(config.arxiv_throttle_seconds)
         self._api = ArxivAPI(self._throttle)
         self._pdf_downloader = PDFDownloader(self._throttle, config.max_download_mb)
@@ -150,23 +149,18 @@ class UpdatesPipeline:
 
         logger.info(f"Starting updates pipeline run {stats.run_id}")
 
-        # Calculate date range
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=self._lookback_days)
 
-        # Get categories from enabled topics
         categories = self._get_categories()
 
-        # Query arXiv API for updates
         logger.info(f"Querying arXiv for updates from {start_date.date()} to {end_date.date()}")
         updated_papers = self._api.search_by_date_range(start_date, end_date, categories)
         stats.candidates_total = len(updated_papers)
         logger.info(f"Found {len(updated_papers)} updated papers")
 
-        # Get existing documents for comparison
         existing_docs = self._get_existing_documents() if self._contextual else {}
 
-        # Process each update
         for metadata in updated_papers:
             result = self._process_update(metadata, existing_docs, stats)
             stats.results.append(result)
@@ -194,7 +188,6 @@ class UpdatesPipeline:
         """
         existing: dict[str, dict[int, Any]] = {}
 
-        # List all arxiv documents
         doc_names = self._contextual.list_documents(prefix="arxiv:")
 
         for name in doc_names:
@@ -203,7 +196,6 @@ class UpdatesPipeline:
                 if info.arxiv_id not in existing:
                     existing[info.arxiv_id] = {}
 
-                # Get document metadata
                 doc = self._contextual.get_document(name)
                 if doc:
                     existing[info.arxiv_id][info.version] = doc.metadata
@@ -299,21 +291,18 @@ class UpdatesPipeline:
             stats.rejected += 1
             return result
 
-        # Download and ingest
         if self._dry_run:
             logger.info(f"[DRY RUN] Would ingest: {metadata.arxiv_id}v{metadata.version}")
             result.ingested = True
             stats.new_versions_ingested += 1
             return result
 
-        # Download PDF
         pdf_result = self._pdf_downloader.download(metadata.pdf_url)
         if not pdf_result.success:
             result.error = f"Download failed: {pdf_result.error_message}"
             stats.download_failed += 1
             return result
 
-        # Ingest
         if self._ingest_paper(metadata, judge_result.output, pdf_result.pdf_bytes, stats.run_id, match_result.matched_topics):
             result.ingested = True
             stats.new_versions_ingested += 1
@@ -347,7 +336,6 @@ class UpdatesPipeline:
 
         logger.info(f"Updating DOI for {doc_name}: '{stored_metadata.get('doi', '')}' -> '{new_doi}'")
 
-        # Update metadata
         updates = {"doi": new_doi}
 
         # Also try to refresh citations if DOI is now available
@@ -383,7 +371,6 @@ class UpdatesPipeline:
         Returns:
             True if ingest succeeded.
         """
-        # Build custom_metadata (derivable fields omitted for 2KB budget)
         breakdown = judge_output.quality_breakdown_i
         custom_metadata = {
             "arxiv_id": metadata.arxiv_id,
@@ -412,7 +399,6 @@ class UpdatesPipeline:
             "judge_prompt_version": judge_output.prompt_version,
         }
 
-        # Ingest PDF
         pdf_result = self._contextual.ingest_pdf(
             metadata.arxiv_id,
             metadata.version,
@@ -423,7 +409,6 @@ class UpdatesPipeline:
             logger.error(f"PDF ingest failed: {pdf_result.error}")
             return False
 
-        # Build and ingest manifest
         manifest_content = {
             "arxiv_metadata": metadata.to_dict(),
             "judge_output": judge_output.to_dict(),

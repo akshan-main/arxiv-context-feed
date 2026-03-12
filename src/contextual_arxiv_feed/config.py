@@ -14,10 +14,8 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-# Regex for valid topic keys: must start with letter, lowercase alphanumeric with optional hyphens/underscores
 TOPIC_KEY_PATTERN = re.compile(r"^[a-z][a-z0-9]*([_-][a-z0-9]+)*$")
 
-# Default config directory
 CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
 
 
@@ -181,7 +179,6 @@ class AppConfig(BaseModel):
     sources: SourcesConfig
     categories: CategoriesConfig
 
-    # Runtime settings from environment
     contextual_api_key: str = Field(default="")
     contextual_datastore_id: str = Field(default="")
     contextual_base_url: str = Field(default="https://api.contextual.ai")
@@ -221,7 +218,6 @@ def load_config(config_dir: Path | None = None) -> AppConfig:
     sources_data = load_yaml(config_dir / "sources.yaml")
     categories_data = load_yaml(config_dir / "categories.yaml")
 
-    # Override judge settings from environment
     judge_provider = os.getenv("JUDGE_PROVIDER", "")
     judge_model_id = os.getenv("JUDGE_MODEL_ID", "")
     if judge_provider:

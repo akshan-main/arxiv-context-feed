@@ -22,7 +22,6 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-# Flair colors for topic categories (Reddit's predefined CSS classes)
 FLAIR_COLORS = [
     ("#0079d3", "#ffffff"),  # blue/white
     ("#7b2292", "#ffffff"),  # purple/white
@@ -157,12 +156,10 @@ class RedditPoster:
         try:
             subreddit = self._reddit.subreddit(subreddit_name)
 
-            # Get existing flair templates
             existing = set()
             for flair in subreddit.flair.link_templates:
                 existing.add(flair["text"])
 
-            # Create missing flairs for each topic
             for i, (key, name) in enumerate(self._topic_names.items()):
                 flair_text = self._config.flair_overrides.get(key, name)
                 if flair_text not in existing:
@@ -199,7 +196,6 @@ class RedditPoster:
             logger.warning("No subreddits configured for Reddit posting")
             return []
 
-        # Filter by quality and sort
         qualified = [
             p for p in accepted_papers
             if p.get("quality_i", 0) >= self._config.min_quality_i
@@ -216,7 +212,6 @@ class RedditPoster:
 
         results = []
         for subreddit_name in self._config.subreddits:
-            # Ensure flairs exist before posting
             self._ensure_flairs(subreddit_name)
 
             for paper in top_papers:
@@ -257,7 +252,6 @@ class RedditPoster:
         try:
             subreddit = self._reddit.subreddit(subreddit_name)
 
-            # Find the flair template ID for the primary topic
             flair_id, flair_text = self._find_flair_template(paper, subreddit)
 
             submission = subreddit.submit(

@@ -1,13 +1,4 @@
-"""ChromaDB store for paper text and metadata.
-
-Used by both the pipeline (write) and the chatbot (read).
-ChromaDB handles embedding automatically using its built-in
-ONNX MiniLM model — no separate embedding step needed.
-
-The pipeline extracts text from PDFs, chunks it, and stores
-chunks in ChromaDB. The chatbot queries ChromaDB directly.
-No local file storage — everything lives in ChromaDB.
-"""
+"""ChromaDB store for paper text and metadata."""
 
 from __future__ import annotations
 
@@ -19,7 +10,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Chunk settings
 CHUNK_SIZE_CHARS = 512
 CHUNK_OVERLAP_CHARS = 64
 
@@ -100,7 +90,6 @@ class ChromaDBStore:
         Returns:
             Number of chunks stored.
         """
-        # Extract text from PDF
         text_parts = self._extract_text(pdf_bytes, arxiv_id)
         if not text_parts:
             logger.warning(f"No text extracted from PDF for {arxiv_id}")
@@ -108,10 +97,8 @@ class ChromaDBStore:
 
         full_text = "\n\n".join(text_parts)
 
-        # Chunk text
         chunks = _chunk_text(full_text)
 
-        # Extract and add figure captions as separate chunks
         captions = _extract_figure_captions(full_text)
         for caption in captions:
             chunks.append(f"[Figure] {caption}")
@@ -119,7 +106,6 @@ class ChromaDBStore:
         if not chunks:
             return 0
 
-        # Build IDs and metadata
         doc_prefix = f"{arxiv_id}v{version}"
         ids = [f"{doc_prefix}_chunk_{i}" for i in range(len(chunks))]
         metadatas = [
@@ -139,8 +125,6 @@ class ChromaDBStore:
             for i in range(len(chunks))
         ]
 
-        # Upsert (idempotent — safe to re-run)
-        # ChromaDB has batch limits, so process in batches
         batch_size = 100
         for start in range(0, len(chunks), batch_size):
             end = start + batch_size
@@ -225,12 +209,10 @@ class ChromaDBStore:
         cutoff = (datetime.utcnow() - timedelta(days=max_age_days)).strftime("%Y-%m-%d")
         logger.info(f"Pruning papers published before {cutoff} ({max_age_days} days)")
 
-        # Get all documents with their metadata
         total = self._collection.count()
         if total == 0:
             return 0
 
-        # Fetch in batches to find old chunks
         batch_size = 1000
         ids_to_delete: list[str] = []
 
@@ -243,7 +225,6 @@ class ChromaDBStore:
 
             for doc_id, meta in zip(results["ids"], results["metadatas"], strict=False):
                 published = meta.get("published", "")
-                # Only prune if published date exists and is older than cutoff
                 if published and published < cutoff:
                     ids_to_delete.append(doc_id)
 
@@ -251,7 +232,6 @@ class ChromaDBStore:
             logger.info("No old papers to prune")
             return 0
 
-        # Delete in batches (ChromaDB limit)
         for start in range(0, len(ids_to_delete), batch_size):
             end = start + batch_size
             self._collection.delete(ids=ids_to_delete[start:end])

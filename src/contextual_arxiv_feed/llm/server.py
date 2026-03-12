@@ -1,7 +1,6 @@
 """llama.cpp server management for local LLM inference.
 
 Manages a llama-cpp-python server process for serving local models.
-On Oracle Cloud, the server runs as a systemd service instead.
 """
 
 from __future__ import annotations
@@ -32,7 +31,7 @@ class ServerConfig:
     port: int = DEFAULT_PORT
     n_ctx: int = DEFAULT_N_CTX
     n_threads: int = DEFAULT_N_THREADS
-    n_gpu_layers: int = 0  # CPU-only for Oracle Cloud ARM
+    n_gpu_layers: int = 0
 
     @property
     def base_url(self) -> str:
@@ -61,8 +60,7 @@ def check_server_health(base_url: str, timeout: float = 5.0) -> bool:
 class LlamaCppServer:
     """Manages a llama-cpp-python server process.
 
-    For local development and testing. On Oracle Cloud, use the
-    systemd service instead (deploy/llama-server.service).
+    For local development and testing.
     """
 
     def __init__(self, config: ServerConfig):

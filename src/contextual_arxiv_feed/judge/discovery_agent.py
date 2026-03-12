@@ -3,7 +3,7 @@
 Runs on papers that FAILED Stage 1 keyword matching to catch papers
 that discuss relevant topics using different terminology.
 
-3-tier fallback: Cerebras → Gemini → Local Qwen (same as judge).
+3-tier fallback: Cerebras -> Gemini -> Local Qwen (same as judge).
 Uses DISCOVERY_* env vars if set, else falls back to LLM_* vars.
 """
 
@@ -22,12 +22,10 @@ from contextual_arxiv_feed.keys.rotator import KeyPool
 
 logger = logging.getLogger(__name__)
 
-# Fallback LLM config
 FALLBACK_BASE_URL = "http://127.0.0.1:8080/v1"
 FALLBACK_API_KEY = "not-needed"
 FALLBACK_MODEL_ID = "qwen2.5-14b-instruct-q4_k_m"
 
-# Lightweight prompt for yes/no topic relevance
 DISCOVERY_PROMPT = """You are a research paper classifier for an LLM systems and applied AI engineering research feed. Determine if this paper should be included.
 
 ## Topics
@@ -119,7 +117,7 @@ class DiscoveryAgent:
     """Smart agent for semantic topic matching.
 
     Stage 1.5: runs on papers that failed keyword matching.
-    3-tier fallback: Cerebras → Gemini → Local Qwen (same as judge).
+    3-tier fallback: Cerebras -> Gemini -> Local Qwen (same as judge).
     Uses DISCOVERY_* env vars if set, else falls back to LLM_* vars.
     """
 
@@ -204,7 +202,7 @@ class DiscoveryAgent:
             return DiscoveryResult(error=str(e))
 
     def _call_llm(self, prompt: str) -> str:
-        """Call LLM with 3-tier fallback: primary → secondary → local."""
+        """Call LLM with 3-tier fallback: primary -> secondary -> local."""
         # Tier 1: Primary (Cerebras)
         result = self._try_tier(self._base_url, self._model_id, self._key_pool, prompt)
         if result is not None:

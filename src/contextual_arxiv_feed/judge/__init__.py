@@ -5,7 +5,6 @@ from contextual_arxiv_feed.judge.schema import JudgeOutput, QualityBreakdown
 
 __all__ = ["JudgeResult", "JudgeOutput", "QualityBreakdown", "create_judge"]
 
-# Conditionally export LLMJudge
 try:
     from contextual_arxiv_feed.judge.llm_judge import LLMJudge  # noqa: F401
 
