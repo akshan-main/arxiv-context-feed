@@ -1,6 +1,6 @@
 # Contextual arXiv Feed
 
-A production-grade ingestion system that continuously ingests arXiv papers into a [Contextual AI](https://contextual.ai) Datastore using a multi-stage filtering pipeline.
+An ingestion system that continuously ingests arXiv papers into a [Contextual AI](https://contextual.ai) Datastore using a multi-stage filtering pipeline.
 
 ## How It Works
 
@@ -8,11 +8,11 @@ Papers flow through a 3-stage filter before ingestion:
 
 | Stage | Input | Method | Purpose |
 |-------|-------|--------|---------|
-| **Stage 1** | Title + RSS snippet | Keyword/phrase matching (stemmed) | Wide net — catches obvious matches |
+| **Stage 1** | Title + RSS snippet | Keyword/phrase matching (stemmed) | Wide net, catches obvious matches |
 | **Stage 1.5** | Title + snippet | Discovery Agent (LLM) | Semantic catch — finds papers keywords miss |
 | **Stage 2** | Full abstract | Judge Agent (LLM) | Full topicality + quality evaluation |
 
-A paper is accepted when `topicality_verdict == "accept" AND (quality_i >= 65 OR confidence_i < 80)`.
+Acceptance: `quality_i >= 65` (cross-batch validated, 4 batches / 205 papers, F1=77% ± 10%). Judge failures are fail-closed (skip, don't ingest).
 
 ---
 
@@ -197,12 +197,11 @@ export CONTEXTUAL_API_KEY="your-contextual-api-key"
 export CONTEXTUAL_DATASTORE_ID="your-datastore-id"
 ```
 
-LLM Judge (Cerebras primary, Gemini fallback):
+LLM Judge (Cerebras):
 
 ```bash
 export LLM_API_KEYS="your-cerebras-key"
 export LLM_BASE_URL="https://api.cerebras.ai/v1"
-export LLM_SECONDARY_API_KEYS="your-gemini-key"
 ```
 
 See [.env.example](.env.example) for all variables.
@@ -226,7 +225,7 @@ See [.env.example](.env.example) for all variables.
 
 ### Judge ([config/judge.yaml](config/judge.yaml))
 
-3-tier fallback: Cerebras -> Gemini -> Local Qwen (if available).
+Cerebras with round-robin key rotation.
 
 ### Reddit ([config/reddit.yaml](config/reddit.yaml))
 
@@ -258,7 +257,7 @@ Trigger manually with inputs or point to a GitHub Issue:
 
 ### Optional Secrets
 
-- `LLM_API_KEYS`, `LLM_SECONDARY_API_KEYS` (judge)
+- `LLM_API_KEYS` (judge)
 - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USERNAME`, `REDDIT_PASSWORD`
 - `OPENALEX_API_KEYS`, `S2_API_KEYS` (citations)
 
@@ -304,7 +303,7 @@ src/contextual_arxiv_feed/
 ├── arxiv/                 # arXiv integration (feeds, API, PDF, throttle)
 ├── matcher/               # Stage 1: keyword/phrase matching
 ├── judge/                 # Stage 2: LLM judge
-│   ├── llm_judge.py       # 3-tier fallback: Cerebras → Gemini → local
+│   ├── llm_judge.py       # Cerebras with key rotation
 │   ├── discovery_agent.py # Stage 1.5: semantic discovery
 │   └── prompt_templates/
 ├── contextual/            # Contextual AI integration

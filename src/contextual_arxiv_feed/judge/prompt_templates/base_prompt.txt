@@ -28,16 +28,26 @@ Evaluate the abstract based on these 3 criteria:
    - 0-39: Survey, position paper, or no novelty claim
 
 2. **Relevance** (0-100): How useful is this to practitioners building LLM systems?
-   - High: Directly applicable to building/improving LLM systems
-   - Medium: Relevant concepts but requires adaptation
-   - Low: Tangential, purely theoretical, or not related to LLM systems
+   - 85+: Directly solves a real problem in building/deploying LLM systems
+   - 60-84: Clearly applicable to LLM system design or optimization
+   - 40-59: Relevant concepts but requires significant adaptation
+   - 0-39: Tangential, purely theoretical, or not related to LLM systems
 
 3. **Technical Depth** (0-100): Does it describe a concrete technical approach (not just high-level ideas)?
-   - High: Specific algorithm/architecture/method described
-   - Medium: General approach described but lacks specifics
-   - Low: Position paper, opinion, or purely theoretical without concrete approach
+   - 85+: Specific algorithm/architecture/method with experiments or proofs
+   - 60-84: Clear technical approach described with some detail
+   - 40-59: General approach described but lacks specifics
+   - 0-39: Position paper, opinion, or purely theoretical without concrete approach
 
-Overall quality is the weighted average: (Novelty×0.40 + Relevance×0.35 + Technical Depth×0.25)
+Overall quality is the weighted average: (Novelty×0.35 + Relevance×0.40 + Technical Depth×0.25)
+
+## Scoring Calibration
+
+Be discriminating. Most papers should score in the 40-75 range. Reserve scores above 80 for genuinely strong papers. A score of 70+ should mean you would confidently recommend this paper to a senior ML engineer.
+
+- Do NOT inflate scores. A mediocre paper with some keywords should score 40-55, not 65+.
+- Incremental improvements over known methods: 50-65 range.
+- Only give 80+ if the paper makes a clearly novel and practically useful contribution.
 
 ## Confidence Assessment
 Provide your overall confidence (0-100) in your assessment. Consider:

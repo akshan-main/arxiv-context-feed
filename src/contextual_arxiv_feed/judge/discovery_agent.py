@@ -3,7 +3,7 @@
 Runs on papers that FAILED Stage 1 keyword matching to catch papers
 that discuss relevant topics using different terminology.
 
-3-tier fallback: Cerebras -> Gemini -> Local Qwen (same as judge).
+Uses Cerebras with key rotation (same as judge).
 Uses DISCOVERY_* env vars if set, else falls back to LLM_* vars.
 """
 
@@ -21,10 +21,6 @@ from contextual_arxiv_feed.config import TopicConfig
 from contextual_arxiv_feed.keys.rotator import KeyPool
 
 logger = logging.getLogger(__name__)
-
-FALLBACK_BASE_URL = "http://127.0.0.1:8080/v1"
-FALLBACK_API_KEY = "not-needed"
-FALLBACK_MODEL_ID = "qwen2.5-14b-instruct-q4_k_m"
 
 DISCOVERY_PROMPT = """You are a research paper classifier for an LLM systems and applied AI engineering research feed. Determine if this paper should be included.
 
@@ -89,35 +85,11 @@ def _build_discovery_key_pool() -> KeyPool:
     return KeyPool([], cooldown_seconds=300)
 
 
-def _build_discovery_secondary_key_pool() -> KeyPool:
-    """Build secondary key pool for discovery agent.
-
-    Priority: DISCOVERY_SECONDARY_API_KEYS > LLM_SECONDARY_API_KEYS
-    """
-    keys_str = os.getenv("DISCOVERY_SECONDARY_API_KEYS", "")
-    if keys_str:
-        return KeyPool(keys_str.split(","), cooldown_seconds=300)
-
-    single = os.getenv("DISCOVERY_SECONDARY_API_KEY", "")
-    if single:
-        return KeyPool([single], cooldown_seconds=300)
-
-    keys_str = os.getenv("LLM_SECONDARY_API_KEYS", "")
-    if keys_str:
-        return KeyPool(keys_str.split(","), cooldown_seconds=300)
-
-    single = os.getenv("LLM_SECONDARY_API_KEY", "")
-    if single:
-        return KeyPool([single], cooldown_seconds=300)
-
-    return KeyPool([], cooldown_seconds=300)
-
-
 class DiscoveryAgent:
     """Smart agent for semantic topic matching.
 
     Stage 1.5: runs on papers that failed keyword matching.
-    3-tier fallback: Cerebras -> Gemini -> Local Qwen (same as judge).
+    Uses Cerebras with key rotation (same as judge).
     Uses DISCOVERY_* env vars if set, else falls back to LLM_* vars.
     """
 
@@ -134,41 +106,24 @@ class DiscoveryAgent:
         self._base_url = (
             base_url
             or os.getenv("DISCOVERY_BASE_URL", "")
-            or os.getenv("LLM_BASE_URL", "http://127.0.0.1:8080/v1")
+            or os.getenv("LLM_BASE_URL", "https://api.cerebras.ai/v1")
         )
         self._model_id = (
             model_id
             or os.getenv("DISCOVERY_MODEL_ID", "")
-            or os.getenv("LLM_MODEL_ID", "qwen2.5-14b-instruct-q4_k_m")
+            or os.getenv("LLM_MODEL_ID", "gpt-oss-120b")
         )
         if key_pool is not None:
             self._key_pool = key_pool
         else:
             self._key_pool = _build_discovery_key_pool()
 
-        # Secondary (Gemini): DISCOVERY_SECONDARY_* > LLM_SECONDARY_*
-        self._secondary_base_url = (
-            os.getenv("DISCOVERY_SECONDARY_BASE_URL", "")
-            or os.getenv("LLM_SECONDARY_BASE_URL", "")
-        )
-        self._secondary_model_id = (
-            os.getenv("DISCOVERY_SECONDARY_MODEL_ID", "")
-            or os.getenv("LLM_SECONDARY_MODEL_ID", "")
-        )
-        self._secondary_key_pool = _build_discovery_secondary_key_pool()
-
-        # Final fallback (local Qwen)
-        self._fallback_base_url = os.getenv("LLM_FALLBACK_BASE_URL", FALLBACK_BASE_URL)
-        self._fallback_api_key = os.getenv("LLM_FALLBACK_API_KEY", FALLBACK_API_KEY)
-        self._fallback_model_id = os.getenv("LLM_FALLBACK_MODEL_ID", FALLBACK_MODEL_ID)
-
         self._client = httpx.Client(timeout=30.0)
         self._topic_list = self._build_topic_list()
 
         logger.info(
             f"Discovery Agent initialized: model={self._model_id}, "
-            f"base_url={self._base_url}, keys={self._key_pool.size}, "
-            f"secondary={'yes' if self._secondary_base_url else 'none'}"
+            f"base_url={self._base_url}, keys={self._key_pool.size}"
         )
 
     def close(self) -> None:
@@ -202,30 +157,12 @@ class DiscoveryAgent:
             return DiscoveryResult(error=str(e))
 
     def _call_llm(self, prompt: str) -> str:
-        """Call LLM with 3-tier fallback: primary -> secondary -> local."""
-        # Tier 1: Primary (Cerebras)
+        """Call Cerebras LLM with key rotation."""
         result = self._try_tier(self._base_url, self._model_id, self._key_pool, prompt)
         if result is not None:
             return result
 
-        # Tier 2: Secondary (Gemini)
-        if self._secondary_base_url and self._secondary_key_pool.size > 0:
-            logger.info("Discovery primary exhausted, trying secondary provider")
-            result = self._try_tier(
-                self._secondary_base_url, self._secondary_model_id,
-                self._secondary_key_pool, prompt,
-            )
-            if result is not None:
-                return result
-
-        # Tier 3: Local Qwen
-        logger.warning("All Discovery Agent keys exhausted, using local Qwen fallback")
-        return self._do_request(
-            self._fallback_base_url,
-            self._fallback_api_key,
-            self._fallback_model_id,
-            prompt,
-        )
+        raise RuntimeError("All Cerebras API keys exhausted or unavailable")
 
     def _try_tier(
         self, base_url: str, model_id: str, key_pool: KeyPool, prompt: str,

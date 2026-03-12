@@ -1,6 +1,6 @@
 """LLM Judge for Stage 2 abstract evaluation.
 
-Fallback chain: Cerebras -> Gemini -> Local Qwen.
+Uses Cerebras with round-robin key rotation.
 See config/judge.yaml for provider setup.
 """
 
@@ -23,11 +23,6 @@ from contextual_arxiv_feed.keys.rotator import KeyPool
 
 logger = logging.getLogger(__name__)
 
-FALLBACK_BASE_URL = "http://127.0.0.1:8080/v1"
-FALLBACK_API_KEY = "not-needed"
-FALLBACK_MODEL_ID = "qwen2.5-14b-instruct-q4_k_m"
-
-
 def _build_llm_key_pool() -> KeyPool:
     """Build primary LLM key pool from environment.
 
@@ -42,26 +37,11 @@ def _build_llm_key_pool() -> KeyPool:
     return KeyPool(keys, cooldown_seconds=60)
 
 
-def _build_secondary_key_pool() -> KeyPool:
-    """Build secondary (Cerebras) key pool from environment.
-
-    Reads LLM_SECONDARY_API_KEYS (comma-separated) or LLM_SECONDARY_API_KEY.
-    """
-    keys_str = os.getenv("LLM_SECONDARY_API_KEYS", "")
-    if keys_str:
-        keys = keys_str.split(",")
-    else:
-        single = os.getenv("LLM_SECONDARY_API_KEY", "")
-        keys = [single] if single else []
-    return KeyPool(keys, cooldown_seconds=60)
-
-
 class LLMJudge:
     """LLM judge for evaluating paper abstracts.
 
-    3-tier fallback: Cerebras -> Gemini -> Local Qwen.
-    Each tier rotates keys round-robin. On 429, exhausts all keys
-    in current tier before falling to the next.
+    Uses Cerebras with round-robin key rotation.
+    On 429, rotates to next key and waits for cooldown if all exhausted.
 
     Interface: judge(title, abstract) -> JudgeResult
     """
@@ -76,17 +56,9 @@ class LLMJudge:
         self._config = config
         self._topics = topics
 
-        self._base_url = base_url or os.getenv("LLM_BASE_URL", "http://127.0.0.1:8080/v1")
+        self._base_url = base_url or os.getenv("LLM_BASE_URL", "https://api.cerebras.ai/v1")
         self._model_id = config.model_id
         self._key_pool = key_pool or _build_llm_key_pool()
-
-        self._secondary_base_url = os.getenv("LLM_SECONDARY_BASE_URL", "")
-        self._secondary_model_id = os.getenv("LLM_SECONDARY_MODEL_ID", "")
-        self._secondary_key_pool = _build_secondary_key_pool()
-
-        self._fallback_base_url = os.getenv("LLM_FALLBACK_BASE_URL", FALLBACK_BASE_URL)
-        self._fallback_api_key = os.getenv("LLM_FALLBACK_API_KEY", FALLBACK_API_KEY)
-        self._fallback_model_id = os.getenv("LLM_FALLBACK_MODEL_ID", FALLBACK_MODEL_ID)
 
         self._prompt_template = self._load_prompt_template()
         self._client = httpx.Client(timeout=120.0)
@@ -95,8 +67,7 @@ class LLMJudge:
 
         logger.info(
             f"Judge initialized: model={self._model_id}, "
-            f"base_url={self._base_url}, keys={self._key_pool.size}, "
-            f"secondary={'yes' if self._secondary_base_url else 'none'}"
+            f"base_url={self._base_url}, keys={self._key_pool.size}"
         )
 
     def close(self) -> None:
@@ -162,36 +133,14 @@ class LLMJudge:
             return JudgeResult(success=False, error=str(e))
 
     def _call_llm(self, prompt: str) -> str:
-        """Call LLM with fallback chain: primary -> secondary -> local.
-
-        With 1 req/sec throttle + 4 keys round-robin, primary should handle
-        everything. Secondary/local are safety nets for outages, not rate limits.
-        """
-        # Primary (Gemini) — always wait for cooldown, should never need fallback
+        """Call Cerebras LLM with round-robin key rotation."""
         result = self._try_tier(
             self._base_url, self._model_id, self._key_pool, prompt,
         )
         if result is not None:
             return result
 
-        # Secondary (Cerebras) — only if Gemini has a real outage
-        if self._secondary_base_url and self._secondary_key_pool.size > 0:
-            logger.warning("Primary unavailable, trying secondary provider")
-            result = self._try_tier(
-                self._secondary_base_url, self._secondary_model_id,
-                self._secondary_key_pool, prompt,
-            )
-            if result is not None:
-                return result
-
-        # Local Qwen — last resort
-        logger.warning("All API providers unavailable, using local Qwen")
-        return self._do_llm_request(
-            self._fallback_base_url,
-            self._fallback_api_key,
-            self._fallback_model_id,
-            prompt,
-        )
+        raise RuntimeError("All Cerebras API keys exhausted or unavailable")
 
     def _try_tier(
         self, base_url: str, model_id: str, key_pool: KeyPool, prompt: str,
@@ -278,7 +227,7 @@ class LLMJudge:
                 logger.error("Empty response from LLM")
                 return None
 
-            # Strip thinking tags (Gemini 2.5 Flash thinking mode)
+            # Strip thinking tags (some models emit <think> blocks)
             cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
             if not cleaned:
                 cleaned = response  # fallback to original if stripping removed everything

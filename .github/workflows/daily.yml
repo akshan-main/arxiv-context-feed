@@ -35,9 +35,6 @@ jobs:
           CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
           LLM_API_KEYS: ${{ secrets.LLM_API_KEYS }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          LLM_SECONDARY_API_KEYS: ${{ secrets.LLM_SECONDARY_API_KEYS }}
-          LLM_SECONDARY_BASE_URL: ${{ secrets.LLM_SECONDARY_BASE_URL }}
-          LLM_SECONDARY_MODEL_ID: ${{ secrets.LLM_SECONDARY_MODEL_ID }}
           REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
           REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
           REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}

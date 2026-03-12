@@ -42,8 +42,8 @@ def sample_topics_config(sample_topic: TopicConfig) -> TopicsConfig:
 def sample_judge_config() -> JudgeConfig:
     """Sample judge configuration."""
     return JudgeConfig(
-        provider="local",
-        model_id="qwen2.5-14b-instruct-q4_k_m",
+        provider="cerebras",
+        model_id="gpt-oss-120b",
         prompt_version=3,
         strictness="medium",
     )
@@ -114,8 +114,8 @@ def temp_config_dir(tmp_path: Path) -> Path:
 
     # Judge
     judge_data = {
-        "provider": "local",
-        "model_id": "qwen2.5-14b-instruct-q4_k_m",
+        "provider": "cerebras",
+        "model_id": "gpt-oss-120b",
         "prompt_version": 3,
         "strictness": "medium",
     }
@@ -145,7 +145,7 @@ def sample_judge_output_dict() -> dict:
     """Sample valid judge output as dict."""
     return {
         "prompt_version": 1,
-        "model_id": "qwen2.5-14b-instruct-q4_k_m",
+        "model_id": "gpt-oss-120b",
         "quality_verdict": "accept",
         "quality_i": 78,
         "quality_breakdown_i": {

@@ -106,7 +106,7 @@ class TestCustomMetadataStructure:
             "publication_date": "",
             "paper_type": "",
             "open_access": False,
-            "judge_model_id": "qwen-3-235b-a22b-instruct-2507",
+            "judge_model_id": "gpt-oss-120b",
             "judge_prompt_version": 3,
         }
 

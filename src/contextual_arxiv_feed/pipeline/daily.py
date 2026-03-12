@@ -10,7 +10,7 @@ Flow:
    - v2+ papers (revised versions)
    - Top venue accepted papers (NeurIPS, ICML, etc.)
 7. Stage 2: LLM judge on full abstract
-   - Confidence-based rejection: only reject if quality < 65 AND confidence >= 80
+   - Confidence-based rejection: only reject if quality < min_quality_i AND confidence >= 80
 8. If accepted: download PDF, ingest PDF + manifest
 9. Emit run summary
 
@@ -85,7 +85,6 @@ class PipelineStats:
     stage2_passed: int = 0
     stage2_failed: int = 0
     accepted: int = 0
-    accepted_low_confidence: int = 0  # Accepted due to low LLM confidence
     rejected_topicality: int = 0
     rejected_quality: int = 0
     download_failed: int = 0
@@ -110,7 +109,6 @@ class PipelineStats:
             "stage2_passed": self.stage2_passed,
             "stage2_failed": self.stage2_failed,
             "accepted": self.accepted,
-            "accepted_low_confidence": self.accepted_low_confidence,
             "rejected_topicality": self.rejected_topicality,
             "rejected_quality": self.rejected_quality,
             "download_failed": self.download_failed,
@@ -320,33 +318,26 @@ class DailyPipeline:
             result.error = f"Judge error: {judge_result.error}"
             stats.stage2_failed += 1
             logger.warning(f"Judge failed for {entry.arxiv_id}: {judge_result.error}")
-            # Fallback: ingest on LLM failure (benefit of doubt)
-            logger.info(f"Fallback ingest (LLM failed): {entry.arxiv_id}")
-            return self._download_and_ingest(entry, metadata, result, stats, auto_ingest=True)
+            return result
 
         result.judge_output = judge_result.output
         result.stage2_passed = True
         stats.stage2_passed += 1
 
         output = judge_result.output
-        quality_ok = output.quality_i >= 65
-        low_confidence = output.confidence_i < 80
+        min_quality = self._config.judge.get_thresholds().min_quality_i
 
-        if quality_ok:
+        # Cross-batch validated (4 batches, 205 papers): simple q>=65 is most stable
+        accepted = output.quality_i >= min_quality
+
+        if accepted:
             stats.accepted += 1
             logger.debug(f"Accepted {entry.arxiv_id}: quality={output.quality_i}")
-        elif low_confidence:
-            stats.accepted += 1
-            stats.accepted_low_confidence += 1
-            logger.info(
-                f"Accepted (low confidence) {entry.arxiv_id}: "
-                f"quality={output.quality_i}, confidence={output.confidence_i}"
-            )
         else:
             stats.rejected_quality += 1
             logger.debug(
                 f"Rejected {entry.arxiv_id}: quality={output.quality_i}, "
-                f"confidence={output.confidence_i} (confident rejection)"
+                f"confidence={output.confidence_i}"
             )
             return result
 

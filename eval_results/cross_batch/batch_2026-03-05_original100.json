@@ -1,0 +1,810 @@
+{
+  "batch_id": "batch_2026-03-05_original100",
+  "date": "2026-03-05",
+  "scored_at": "2026-03-05T10:43:56.000000",
+  "model": "gpt-oss-120b",
+  "paper_count": 100,
+  "note": "Original 100-paper stratified eval (30 safety_net + 25 borderline_65_69 + 10 mid_70_79 + 5 high_80plus + 30 rejected)",
+  "papers": [
+    {
+      "arxiv_id": "2506.05634",
+      "title": "AutoQD: Automatic Discovery of Diverse Behaviors with Quality-Diversity Optimization",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03531",
+      "title": "Role-Aware Conditional Inference for Spatiotemporal Ecosystem Carbon Flux Prediction",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2509.17844",
+      "title": "Trust Me, I Can Convince You: The Contextualized Argument Appraisal Framework",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03587",
+      "title": "Controllable Generative Sandbox for Causal Inference",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03401",
+      "title": "Beyond Cross-Validation: Adaptive Parameter Selection for Kernel-Based Gradient Descents",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04321",
+      "title": "SPRINT: Semi-supervised Prototypical Representation for Few-Shot Class-Incremental Tabular Learning",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04134",
+      "title": "InstMeter: An Instruction-Level Method to Predict Energy and Latency of DL Model Inference on MCUs",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2512.19570",
+      "title": "The Epistemological Consequences of Large Language Models: Rethinking collective intelligence and institutional knowledge",
+      "cerebras_quality": 50,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03759",
+      "title": "Learning Approximate Nash Equilibria in Cooperative Multi-Agent Reinforcement Learning via Mean-Field Subsampling",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03741",
+      "title": "HALyPO: Heterogeneous-Agent Lyapunov Policy Optimization for Human-Robot Collaboration",
+      "cerebras_quality": 57,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03354",
+      "title": "Non-Invasive Reconstruction of Intracranial EEG Across the Deep Temporal Lobe from Scalp EEG based on Conditional Normalizing Flow",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.02678",
+      "title": "Causal Learning Should Embrace the Wisdom of the Crowd",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03411",
+      "title": "Scalable Contrastive Causal Discovery under Unknown Soft Interventions",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04029",
+      "title": "Self-adapting Robotic Agents through Online Continual Reinforcement Learning with World Model Feedback",
+      "cerebras_quality": 58,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2511.01343",
+      "title": "Diffusion-Based Solver for CNF Placement on the Cloud-Continuum",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03748",
+      "title": "JANUS: Structured Bidirectional Generation for Guaranteed Constraints and Analytical Uncertainty",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03515",
+      "title": "The Controllability Trap: A Governance Framework for Military AI Agents",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03782",
+      "title": "DisenReason: Behavior Disentanglement and Latent Reasoning for Shared-Account Sequential Recommendation",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2505.12506",
+      "title": "Unsupervised Invariant Risk Minimization",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2512.15792",
+      "title": "A Systematic Analysis of Biases in Large Language Models",
+      "cerebras_quality": 58,
+      "cerebras_confidence": 75,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03485",
+      "title": "Phys4D: Fine-Grained Physics-Consistent 4D Modeling from Video Diffusion",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04320",
+      "title": "CAMMSR: Category-Guided Attentive Mixture of Experts for Multimodal Sequential Recommendation",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2407.04593",
+      "title": "Testing learning hypotheses using neural networks by manipulating learning data",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03383",
+      "title": "Accelerating OpenPangu Inference on NPU via Speculative Decoding",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 70,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04354",
+      "title": "Out-of-distribution transfer of PDE foundation models to material dynamics under extreme loading",
+      "cerebras_quality": 64,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.04092",
+      "title": "Characterizing Machine Learning Force Fields as Emerging Molecular Dynamics Workloads on Graphics Processing Units",
+      "cerebras_quality": 52,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2509.19084",
+      "title": "Graph Neural Networks with Similarity-Navigated Probabilistic Feature Copying",
+      "cerebras_quality": 56,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2507.13231",
+      "title": "VITA: Vision-to-Action Flow Matching Policy",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 75,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2409.04878",
+      "title": "Plug-and-Hide: Provable and Adjustable Diffusion Generative Steganography",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2502.11371",
+      "title": "RAG vs. GraphRAG: A Systematic Evaluation and Key Insights",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "safety_net"
+    },
+    {
+      "arxiv_id": "2603.03911",
+      "title": "From Threat Intelligence to Firewall Rules: Semantic Relations in Hybrid AI Agent and Expert System Architectures",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.04217",
+      "title": "When Do Language Models Endorse Limitations on Human Rights Principles?",
+      "cerebras_quality": 69,
+      "cerebras_confidence": 80,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03880",
+      "title": "Joint Hardware-Workload Co-Optimization for In-Memory Computing Accelerators",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2508.11147",
+      "title": "From Feedback to Failure: Automated Android Performance Issue Reproduction",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.02430",
+      "title": "A Unified Revisit of Temperature in Classification-Based Knowledge Distillation",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2512.07041",
+      "title": "CERNet: Class-Embedding Predictive-Coding RNN for Unified Robot Motion, Recognition, and Confidence Estimation",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03806",
+      "title": "Separators in Enhancing Autoregressive Pretraining for Vision Mamba",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.04276",
+      "title": "Causality Elicitation from Large Language Models",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 80,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.04035",
+      "title": "mlx-vis: GPU-Accelerated Dimensionality Reduction and Visualization on Apple Silicon",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03313",
+      "title": "How does fine-tuning improve sensorimotor representations in large language models?",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.04019",
+      "title": "Continuous Modal Logical Neural Networks: Modal Reasoning via Stochastic Accessibility",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03946",
+      "title": "Lang2Str: Two-Stage Crystal Structure Generation with LLMs and Continuous Flow Models",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03630",
+      "title": "Behind the Prompt: The Agent-User Problem in Information Retrieval",
+      "cerebras_quality": 69,
+      "cerebras_confidence": 80,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03596",
+      "title": "MEM: Multi-Scale Embodied Memory for Vision Language Action Models",
+      "cerebras_quality": 69,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03486",
+      "title": "DKD-KAN: A Lightweight knowledge-distilled KAN intrusion detection framework, based on MLP and KAN",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2601.17473",
+      "title": "LeanTutor: Towards a Verified AI Mathematical Proof Tutor",
+      "cerebras_quality": 67,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03464",
+      "title": "Graph Hopfield Networks: Energy-Based Node Classification with Associative Memory",
+      "cerebras_quality": 67,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.00251",
+      "title": "GENAI WORKBENCH: AI-Assisted Analysis and Synthesis of Engineering Systems from Multimodal Engineering Data",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2505.19328",
+      "title": "BAH Dataset for Ambivalence/Hesitancy Recognition in Videos for Behavioural Change",
+      "cerebras_quality": 65,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2602.12851",
+      "title": "Chimera: Neuro-Symbolic Attention Primitives for Trustworthy Dataplane Intelligence",
+      "cerebras_quality": 67,
+      "cerebras_confidence": 78,
+      "opus_relevant": false,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03309",
+      "title": "Combating data scarcity in recommendation services: Integrating cognitive types of VARK and neural network technologies (LLM)",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2507.07847",
+      "title": "From Ambiguity to Accuracy: The Transformative Effect of Coreference Resolution on Retrieval-Augmented Generation systems",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03623",
+      "title": "A Neural Topic Method Using a Large-Language-Model-in-the-Loop for Business Research",
+      "cerebras_quality": 69,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.02353",
+      "title": "Detecting AI-Generated Essays in Writing Assessment: Responsible Use and Generalizability Across LLMs",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 80,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.04083",
+      "title": "Hindsight Quality Prediction Experiments in Multi-Candidate Human-Post-Edited Machine Translation",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "borderline_65_69"
+    },
+    {
+      "arxiv_id": "2603.03633",
+      "title": "Goal-Driven Risk Assessment for LLM-Powered Systems: A Healthcare Case Study",
+      "cerebras_quality": 72,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2506.05339",
+      "title": "Flattery, Fluff, and Fog: Diagnosing and Mitigating Idiosyncratic Biases in Preference Models",
+      "cerebras_quality": 77,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.04064",
+      "title": "Tuning Just Enough: Lightweight Backdoor Attacks on Multi-Encoder Diffusion Models",
+      "cerebras_quality": 73,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.04168",
+      "title": "OMNIINTENT: A Trusted Intent-Centric Framework for User-Friendly Web3",
+      "cerebras_quality": 74,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.03371",
+      "title": "Sleeper Cell: Injecting Latent Malice Temporal Backdoors into Tool-Using LLMs",
+      "cerebras_quality": 78,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2510.19655",
+      "title": "LaViRA: Language-Vision-Robot Actions Translation for Zero-Shot Vision Language Navigation in Continuous Environments",
+      "cerebras_quality": 73,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2406.06512",
+      "title": "Merlin: A Vision Language Foundation Model for 3D Computed Tomography",
+      "cerebras_quality": 78,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.03975",
+      "title": "Phi-4-reasoning-vision-15B Technical Report",
+      "cerebras_quality": 76,
+      "cerebras_confidence": 80,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2505.20065",
+      "title": "SafeDPO: A Simple Approach to Direct Preference Optimization with Enhanced Safety",
+      "cerebras_quality": 77,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.03527",
+      "title": "Logit-Level Uncertainty Quantification in Vision-Language Models for Histopathology Image Analysis",
+      "cerebras_quality": 72,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "mid_70_79"
+    },
+    {
+      "arxiv_id": "2603.03336",
+      "title": "Prompt-Dependent Ranking of Large Language Models with Uncertainty Quantification",
+      "cerebras_quality": 80,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "high_80plus"
+    },
+    {
+      "arxiv_id": "2602.22469",
+      "title": "Beyond Dominant Patches: Spatial Credit Redistribution For Grounded Vision-Language Models",
+      "cerebras_quality": 81,
+      "cerebras_confidence": 90,
+      "opus_relevant": true,
+      "group": "high_80plus"
+    },
+    {
+      "arxiv_id": "2603.03310",
+      "title": "Entropic-Time Inference: Self-Organizing Large Language Model Decoding Beyond Attention",
+      "cerebras_quality": 81,
+      "cerebras_confidence": 78,
+      "opus_relevant": true,
+      "group": "high_80plus"
+    },
+    {
+      "arxiv_id": "2603.04128",
+      "title": "Crab$^{+}$: A Scalable and Unified Audio-Visual Scene Understanding Model with Explicit Cooperation",
+      "cerebras_quality": 80,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "high_80plus"
+    },
+    {
+      "arxiv_id": "2603.03536",
+      "title": "SafeCRS: Personalized Safety Alignment for LLM-Based Conversational Recommender Systems",
+      "cerebras_quality": 80,
+      "cerebras_confidence": 85,
+      "opus_relevant": true,
+      "group": "high_80plus"
+    },
+    {
+      "arxiv_id": "2505.06743",
+      "title": "TPK: Trustworthy Trajectory Prediction Integrating Prior Knowledge For Interpretability and Kinematic Feasibility",
+      "cerebras_quality": 51,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04314",
+      "title": "MOO: A Multi-view Oriented Observations Dataset for Viewpoint Analysis in Cattle Re-Identification",
+      "cerebras_quality": 49,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03495",
+      "title": "Navigating in Uncertain Environments with Heterogeneous Visibility",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.02862",
+      "title": "Learning in Markov Decision Processes with Exogenous Dynamics",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03695",
+      "title": "TreeLoc++: Robust 6-DoF LiDAR Localization in Forests with a Compact Digital Forest Inventory",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04325",
+      "title": "Scalable Evaluation of the Realism of Synthetic Environmental Augmentations in Images",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03843",
+      "title": "Invariance-Based Dynamic Regret Minimization",
+      "cerebras_quality": 56,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2507.05695",
+      "title": "Hybrid Diffusion Policies with Projective Geometric Algebra for Efficient Robot Manipulation Learning",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04209",
+      "title": "Beyond Edge Deletion: A Comprehensive Approach to Counterfactual Explanation in Graph Neural Networks",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04352",
+      "title": "A Soft Robotic Demonstration in the Stratosphere",
+      "cerebras_quality": 53,
+      "cerebras_confidence": 90,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2509.14858",
+      "title": "MeanFlowSE: one-step generative speech enhancement via conditional mean flow",
+      "cerebras_quality": 57,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2512.11781",
+      "title": "Agile Flight Emerges from Multi-Agent Competitive Racing",
+      "cerebras_quality": 51,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03960",
+      "title": "Structural Action Transformer for 3D Dexterous Manipulation",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03511",
+      "title": "Orbital Transformers for Predicting Wavefunctions in Time-Dependent Density Functional Theory",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04235",
+      "title": "2-Coloring Cycles in One Round",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 82,
+      "opus_relevant": true,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03798",
+      "title": "Learning Surgical Robotic Manipulation with 3D Spatial Priors",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03662",
+      "title": "Graph Negative Feedback Bias Correction Framework for Adaptive Heterophily Modeling",
+      "cerebras_quality": 57,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04057",
+      "title": "Sim2Sea: Sim-to-Real Policy Transfer for Maritime Vessel Navigation in Congested Waters",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2509.25845",
+      "title": "Training-Free Reward-Guided Image Editing via Trajectory Optimal Control",
+      "cerebras_quality": 58,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04289",
+      "title": "IPD: Boosting Sequential Policy with Imaginary Planning Distillation in Offline Reinforcement Learning",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03344",
+      "title": "GreenPhase: A Green Learning Approach for Earthquake Phase Picking",
+      "cerebras_quality": 58,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2507.06764",
+      "title": "Fast Equivariant Imaging: Acceleration for Unsupervised Learning via Augmented Lagrangian and Auxiliary PnP Denoisers",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2407.21546",
+      "title": "Black box meta-learning intrinsic rewards for sparse-reward environments",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 82,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03956",
+      "title": "Towards Generalized Multimodal Homography Estimation",
+      "cerebras_quality": 52,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03045",
+      "title": "QFlowNet: Fast, Diverse, and Efficient Unitary Synthesis with Generative Flow Networks",
+      "cerebras_quality": 60,
+      "cerebras_confidence": 80,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.02468",
+      "title": "A Novel Modular Cable-Driven Soft Robotic Arm with Multi-Segment Reconfigurability",
+      "cerebras_quality": 53,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2602.20541",
+      "title": "Maximin Share Guarantees via Limited Cost-Sensitive Sharing",
+      "cerebras_quality": 56,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.04385",
+      "title": "ZipMap: Linear-Time Stateful 3D Reconstruction with Test-Time Training",
+      "cerebras_quality": 57,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2603.03342",
+      "title": "Cryo-SWAN: the Multi-Scale Wavelet-decomposition-inspired Autoencoder Network for molecular density representation of molecular volumes",
+      "cerebras_quality": 55,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    },
+    {
+      "arxiv_id": "2502.05459",
+      "title": "DCENWCNet: A Deep CNN Ensemble Network for White Blood Cell Classification with LIME-Based Explainability",
+      "cerebras_quality": 48,
+      "cerebras_confidence": 85,
+      "opus_relevant": false,
+      "group": "rejected"
+    }
+  ]
+}

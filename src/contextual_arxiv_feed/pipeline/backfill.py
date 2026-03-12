@@ -122,7 +122,6 @@ class BackfillStats:
     stage2_passed: int = 0
     stage2_failed: int = 0
     accepted: int = 0
-    accepted_low_confidence: int = 0
     rejected_topicality: int = 0
     rejected_quality: int = 0
     download_failed: int = 0
@@ -149,7 +148,6 @@ class BackfillStats:
             "stage2_passed": self.stage2_passed,
             "stage2_failed": self.stage2_failed,
             "accepted": self.accepted,
-            "accepted_low_confidence": self.accepted_low_confidence,
             "rejected_topicality": self.rejected_topicality,
             "rejected_quality": self.rejected_quality,
             "download_failed": self.download_failed,
@@ -336,21 +334,21 @@ class BackfillPipeline:
         if not judge_result.success:
             result.error = f"Judge error: {judge_result.error}"
             stats.stage2_failed += 1
-            return self._download_and_ingest(metadata, result, stats, auto_ingest=True)
+            logger.warning(f"Judge failed for {metadata.arxiv_id}: {judge_result.error}")
+            return result
 
         result.judge_output = judge_result.output
         result.stage2_passed = True
         stats.stage2_passed += 1
 
         output = judge_result.output
-        quality_ok = output.quality_i >= 65
-        low_confidence = output.confidence_i < 80
+        min_quality = self._config.judge.get_thresholds().min_quality_i
 
-        if quality_ok:
+        # Cross-batch validated (4 batches, 205 papers): simple q>=65 is most stable
+        accepted = output.quality_i >= min_quality
+
+        if accepted:
             stats.accepted += 1
-        elif low_confidence:
-            stats.accepted += 1
-            stats.accepted_low_confidence += 1
         else:
             stats.rejected_quality += 1
             return result

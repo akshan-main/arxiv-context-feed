@@ -76,12 +76,12 @@ class TestQualityBreakdown:
     def test_weighted_average_different_values(self):
         """Test weighted average with different values."""
         breakdown = QualityBreakdown(
-            novelty_i=100,  # 0.40 weight -> 40
-            relevance_i=50,  # 0.35 weight -> 17.5
+            novelty_i=100,  # 0.35 weight -> 35
+            relevance_i=50,  # 0.40 weight -> 20
             technical_depth_i=50,  # 0.25 weight -> 12.5
         )
-        # 40 + 17.5 + 12.5 = 70
-        assert breakdown.compute_weighted_average() == 70
+        # 35 + 20 + 12.5 = 67.5 -> 68
+        assert breakdown.compute_weighted_average() == 68
 
 
 class TestJudgeOutput:

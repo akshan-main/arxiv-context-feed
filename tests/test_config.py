@@ -79,8 +79,8 @@ class TestJudgeConfig:
     def test_default_values(self):
         """Test default configuration values."""
         config = JudgeConfig()
-        assert config.provider == "gemini"
-        assert config.model_id == "gemini-2.5-flash"
+        assert config.provider == "cerebras"
+        assert config.model_id == "gpt-oss-120b"
         assert config.strictness == "medium"
         assert config.prompt_version == 1
 
@@ -88,11 +88,11 @@ class TestJudgeConfig:
         """Test getting thresholds for different strictness levels."""
         config = JudgeConfig(strictness="low")
         thresholds = config.get_thresholds()
-        assert thresholds.min_quality_i == 40
+        assert thresholds.min_quality_i == 50
 
         config = JudgeConfig(strictness="high")
         thresholds = config.get_thresholds()
-        assert thresholds.min_quality_i == 80
+        assert thresholds.min_quality_i == 85
 
     def test_rejects_float_prompt_version(self):
         """Test that float prompt_version is rejected."""
@@ -176,6 +176,6 @@ class TestLoadConfig:
 
         assert len(config.topics.topics) == 1
         assert config.topics.topics[0].key == "test-topic"
-        assert config.judge.provider == "local"
+        assert config.judge.provider == "cerebras"
         assert config.sources.enable_openalex is True
         assert "cs.LG" in config.categories.categories

@@ -1,0 +1,672 @@
+{
+  "batch_id": "batch_2026-03-10_012039",
+  "date": "2026-03-10",
+  "scored_at": "2026-03-12T01:20:39.434293",
+  "model": "gpt-oss-120b",
+  "paper_count": 35,
+  "papers": [
+    {
+      "arxiv_id": "2603.10771v1",
+      "title": "Word Recovery in Large Language Models Enables Character-Level Tokenization Robustness",
+      "abstract": "Large language models (LLMs) trained with canonical tokenization exhibit surprising robustness to non-canonical inputs such as character-level tokenization, yet the mechanisms underlying this robustness remain unclear. We study this phenomenon through mechanistic interpretability and identify a core process we term word recovery. We first introduce a decoding-based method to detect word recovery, showing that hidden states reconstruct canonical word-level token identities from character-level inputs. We then provide causal evidence by removing the corresponding subspace from hidden states, which consistently degrades downstream task performance. Finally, we conduct a fine-grained attention analysis and show that in-group attention among characters belonging to the same canonical token is critical for word recovery: masking such attention in early layers substantially reduces both recovery scores and task performance. Together, our findings provide a mechanistic explanation for tokenization robustness and identify word recovery as a key mechanism enabling LLMs to process character-level inputs.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "cerebras_quality": 71,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 75,
+      "cerebras_relevance": 68,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "Abstract claims new decoding method, causal subspace removal, and attention analysis to explain tokenization robustness, offering concrete techniques useful for LLM system design.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10767v1",
+      "title": "mAceReason-Math: A Dataset of High-Quality Multilingual Math Problems Ready For RLVR",
+      "abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has been successfully applied to significantly boost the capabilities of pretrained large language models, especially in the math and logic problem domains. However, current research and available training datasets remain English-centric. While mul- tilingual training data and benchmarks have been created in the past, they were not created with RLVR and current model capability in mind, and their level of difficulty is often too low to provide appropriate training signals for current models. To address this gap, we provide mAceReason-Math, a dataset of high-quality translations of challenging math problems sourced from a corpus specifically curated for RLVR (AceReason-Math). We further take specific care to clean and improve our translations, resulting in a coverage of 14 languages with more than 10,000 samples per language. We release the dataset to facilitate multilingual RLVR research and benchmarking in the research community.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "cerebras_quality": 70,
+      "cerebras_confidence": 75,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 80,
+      "cerebras_technical_depth": 55,
+      "cerebras_rationale": "Introduces a new multilingual RLVR-focused math dataset, addressing a clear gap; highly relevant for LLM training, but abstract lacks detailed methodology.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10765v1",
+      "title": "RAGPerf: An End-to-End Benchmarking Framework for Retrieval-Augmented Generation Systems",
+      "abstract": "We present the design and implementation of a RAG-based AI system benchmarking (RAGPerf) framework for characterizing the system behaviors of RAG pipelines. To facilitate detailed profiling and fine-grained performance analysis, RAGPerf decouples the RAG workflow into several modular components - embedding, indexing, retrieval, reranking, and generation. RAGPerf offers the flexibility for users to configure the core parameters of each component and examine their impact on the end-to-end query performance and quality. RAGPerf has a workload generator to model real-world scenarios by supporting diverse datasets (e.g., text, pdf, code, and audio), different retrieval and update ratios, and query distributions. RAGPerf also supports different embedding models, major vector databases such as LanceDB, Milvus, Qdrant, Chroma, and Elasticsearch, as well as different LLMs for content generation. It automates the collection of performance metrics (i.e., end-to-end query throughput, host/GPU memory footprint, and CPU/GPU utilization) and accuracy metrics (i.e., context recall, query accuracy, and factual consistency). We demonstrate the capabilities of RAGPerf through a comprehensive set of experiments and open source its codebase at GitHub. Our evaluation shows that RAGPerf incurs negligible performance overhead.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.PF",
+        "cs.IR"
+      ],
+      "primary_category": "cs.PF",
+      "cerebras_quality": 75,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 68,
+      "cerebras_relevance": 85,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "Introduces a new end\u2011to\u2011end RAG benchmarking framework, clearly useful for practitioners, with concrete modular design and metrics collection. Novelty moderate, relevance high, technical detail sufficient.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10764v1",
+      "title": "HeartAgent: An Autonomous Agent System for Explainable Differential Diagnosis in Cardiology",
+      "abstract": "Heart diseases remain a leading cause of morbidity and mortality worldwide, necessitating accurate and trustworthy differential diagnosis. However, existing artificial intelligence-based diagnostic methods are often limited by insufficient cardiology knowledge, inadequate support for complex reasoning, and poor interpretability. Here we present HeartAgent, a cardiology-specific agent system designed to support a reliable and explainable differential diagnosis. HeartAgent integrates customized tools and curated data resources and orchestrates multiple specialized sub-agents to perform complex reasoning while generating transparent reasoning trajectories and verifiable supporting references. Evaluated on the MIMIC dataset and a private electronic health records cohort, HeartAgent achieved over 36% and 20% improvements over established comparative methods, in top-3 diagnostic accuracy, respectively. Additionally, clinicians assisted by HeartAgent demonstrated gains of 26.9% in diagnostic accuracy and 22.7% in explanatory quality compared with unaided experts. These results demonstrate that HeartAgent provides reliable, explainable, and clinically actionable decision support for cardiovascular care.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "cerebras_quality": 73,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 72,
+      "cerebras_relevance": 78,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "The abstract claims a new cardiology-specific autonomous agent with explainable reasoning, showing clear relevance to LLM system design and moderate technical detail, yielding an overall acceptable score.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10763v1",
+      "title": "Prioritizing Gradient Sign Over Modulus: An Importance-Aware Framework for Wireless Federated Learning",
+      "abstract": "Wireless federated learning (FL) facilitates collaborative training of artificial intelligence (AI) models to support ubiquitous intelligent applications at the wireless edge. However, the inherent constraints of limited wireless resources inevitably lead to unreliable communication, which poses a significant challenge to wireless FL. To overcome this challenge, we propose Sign-Prioritized FL (SP-FL), a novel framework that improves wireless FL by prioritizing the transmission of important gradient information through uneven resource allocation. Specifically, recognizing the importance of descent direction in model updating, we transmit gradient signs in individual packets and allow their reuse for gradient descent if the remaining gradient modulus cannot be correctly recovered. To further improve the reliability of transmission of important information, we formulate a hierarchical resource allocation problem based on the importance disparity at both the packet and device levels, optimizing bandwidth allocation across multiple devices and power allocation between sign and modulus packets. To make the problem tractable, the one-step convergence behavior of SP-FL, which characterizes data importance at both levels in an explicit form, is analyzed. We then propose an alternating optimization algorithm to solve this problem using the Newton-Raphson method and successive convex approximation (SCA). Simulation results confirm the superiority of SP-FL, especially in resource-constrained scenarios, demonstrating up to 9.96\\% higher testing accuracy on the CIFAR-10 dataset compared to existing methods.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "cs.IT",
+        "eess.SP"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 82,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 75,
+      "cerebras_relevance": 58,
+      "cerebras_technical_depth": 75,
+      "cerebras_rationale": "Abstract claims a new SP-FL framework with hierarchical resource allocation and concrete optimization algorithm, showing 9.96% accuracy gain. Relevance to LLM systems is moderate (edge FL), technical depth solid, overall score above threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10753v1",
+      "title": "A PUF-Based Approach for Copy Protection of Intellectual Property in Neural Network Models",
+      "abstract": "More and more companies' Intellectual Property (IP) is being integrated into Neural Network (NN) models. This IP has considerable value for companies and, therefore, requires adequate protection. For example, an attacker might replicate a production machines' hardware and subsequently simply copy associated software and NN models onto the cloned hardware. To make copying NN models onto cloned hardware infeasible, we present an approach to bind NN models - and thus also the IP contained within them - to their underlying hardware. For this purpose, we link an NN model's weights, which are crucial for its operation, to unique and unclonable hardware properties by leveraging Physically Unclonable Functions (PUFs). By doing so, sufficient accuracy can only be achieved using the target hardware to restore the original weights, rendering proper execution of the NN model on cloned hardware impossible. We demonstrate that our approach accomplishes the desired degradation of accuracy on various NN models and outline possible future improvements.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CR",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CR",
+      "cerebras_quality": 69,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 75,
+      "cerebras_relevance": 70,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "The abstract claims a new hardware\u2011PUF binding method for NN IP, a relevant concern for LLM deployment. It reports experimental degradation of accuracy, showing concrete results, though details are sparse.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10750v1",
+      "title": "Deep Randomized Distributed Function Computation (DeepRDFC): Neural Distributed Channel Simulation",
+      "abstract": "The randomized distributed function computation (RDFC) framework, which unifies many cutting-edge distributed computation and learning applications, is considered. An autoencoder (AE) architecture is proposed to minimize the total variation distance between the probability distribution simulated by the AE outputs and an unknown target distribution, using only data samples. We illustrate significantly high RDFC performance with communication load gains from our AEs compared to data compression methods. Our designs establish deep learning-based RDFC methods and aim to facilitate the use of RDFC methods, especially when the amount of common randomness is limited and strong function computation guarantees are required.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.IT",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.IT",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 60,
+      "cerebras_technical_depth": 55,
+      "cerebras_rationale": "The abstract proposes a new AE-based RDFC method and reports communication gains, but lacks LLM-specific context and detailed technical specifics, yielding modest novelty and relevance scores and overall quality below the acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10745v1",
+      "title": "CUPID: A Plug-in Framework for Joint Aleatoric and Epistemic Uncertainty Estimation with a Single Model",
+      "abstract": "Accurate estimation of uncertainty in deep learning is critical for deploying models in high-stakes domains such as medical diagnosis and autonomous decision-making, where overconfident predictions can lead to harmful outcomes. In practice, understanding the reason behind a model's uncertainty and the type of uncertainty it represents can support risk-aware decisions, enhance user trust, and guide additional data collection. However, many existing methods only address a single type of uncertainty or require modifications and retraining of the base model, making them difficult to adopt in real-world systems. We introduce CUPID (Comprehensive Uncertainty Plug-in estImation moDel), a general-purpose module that jointly estimates aleatoric and epistemic uncertainty without modifying or retraining the base model. CUPID can be flexibly inserted into any layer of a pretrained network. It models aleatoric uncertainty through a learned Bayesian identity mapping and captures epistemic uncertainty by analyzing the model's internal responses to structured perturbations. We evaluate CUPID across a range of tasks, including classification, regression, and out-of-distribution detection. The results show that it consistently delivers competitive performance while offering layer-wise insights into the origins of uncertainty. By making uncertainty estimation modular, interpretable, and model-agnostic, CUPID supports more transparent and trustworthy AI. Related code and data are available at https://github.com/a-Fomalhaut-a/CUPID.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 63,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 55,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "Claims a new plug\u2011in uncertainty module, but relevance to LLM systems is indirect and technical details are limited, yielding overall quality below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10742v1",
+      "title": "A Grammar of Machine Learning Workflows",
+      "abstract": "Data leakage affected 294 published papers across 17 scientific fields (Kapoor & Narayanan, 2023). The dominant response has been documentation: checklists, linters, best-practice guides. Documentation does not prevent these failures. This paper proposes a structural remedy: a grammar that decomposes the supervised learning lifecycle into 7 kernel primitives connected by a typed directed acyclic graph (DAG), with four hard constraints that reject the two most damaging leakage classes at call time. The grammar's core contribution is the terminal assess constraint: a runtime-enforced evaluate/assess boundary where repeated test-set assessment is rejected by a guard on a nominally distinct Evidence type. A companion study across 2,047 experimental instances quantifies why this matters: selection leakage inflates performance by d_z = 0.93 and memorization leakage by d_z = 0.53-1.11. Three separate implementations (Python, R, and Julia) confirm the claims. The appendix specification lets anyone build a conforming version.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 75,
+      "cerebras_relevance": 60,
+      "cerebras_technical_depth": 72,
+      "cerebras_rationale": "Claims a new grammar and runtime constraints to prevent data leakage, with concrete experiments and implementations; moderately relevant to LLM pipeline engineering, showing sufficient depth for acceptance.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10731v1",
+      "title": "Beyond Accuracy: Reliability and Uncertainty Estimation in Convolutional Neural Networks",
+      "abstract": "Deep neural networks (DNNs) have become integral to a wide range of scientific and practical applications due to their flexibility and strong predictive performance. Despite their accuracy, however, DNNs frequently exhibit poor calibration, often assigning overly confident probabilities to incorrect predictions. This limitation underscores the growing need for integrated mechanisms that provide reliable uncertainty estimation. In this article, we compare two prominent approaches for uncertainty quantification: a Bayesian approximation via Monte Carlo Dropout and the nonparametric Conformal Prediction framework. Both methods are assessed using two convolutional neural network architectures; H-CNN VGG16 and GoogLeNet, trained on the Fashion-MNIST dataset. The empirical results show that although H-CNN VGG16 attains higher predictive accuracy, it tends to exhibit pronounced overconfidence, whereas GoogLeNet yields better-calibrated uncertainty estimates. Conformal Prediction additionally demonstrates consistent validity by producing statistically guaranteed prediction sets, highlighting its practical value in high-stakes decision-making contexts. Overall, the findings emphasize the importance of evaluating model performance beyond accuracy alone and contribute to the development of more reliable and trustworthy deep learning systems.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "stat.ML"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 43,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 45,
+      "cerebras_relevance": 30,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "The abstract presents an incremental comparison of known uncertainty methods on CNNs, lacking LLM relevance and clear novelty; technical detail is modest.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10725v1",
+      "title": "Towards Robust Speech Deepfake Detection via Human-Inspired Reasoning",
+      "abstract": "The modern generative audio models can be used by an adversary in an unlawful manner, specifically, to impersonate other people to gain access to private information. To mitigate this issue, speech deepfake detection (SDD) methods started to evolve. Unfortunately, current SDD methods generally suffer from the lack of generalization to new audio domains and generators. More than that, they lack interpretability, especially human-like reasoning that would naturally explain the attribution of a given audio to the bona fide or spoof class and provide human-perceptible cues. In this paper, we propose HIR-SDD, a novel SDD framework that combines the strengths of Large Audio Language Models (LALMs) with the chain-of-thought reasoning derived from the novel proposed human-annotated dataset. Experimental evaluation demonstrates both the effectiveness of the proposed method and its ability to provide reasonable justifications for predictions.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.SD",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SD",
+      "cerebras_quality": 71,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 72,
+      "cerebras_relevance": 78,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Claims a new LALM\u2011based SDD framework with chain\u2011of\u2011thought reasoning and a human\u2011annotated dataset, offering practical relevance to audio LLM deployment; abstract lacks detailed methods, limiting depth confidence.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10726v1",
+      "title": "CacheSolidarity: Preventing Prefix Caching Side Channels in Multi-tenant LLM Serving Systems",
+      "abstract": "Large Language Models (LLMs) rely on optimizations like Automatic Prefix Caching (APC) to accelerate inference. APC works by reusing previously computed states for the beginning part of a request (prefix), when another request starts with the same text. While APC improves throughput, it introduces timing side channels: cache hits are faster than misses, creating observable latency differences. In multi-tenant systems, attackers can exploit these differences to infer sensitive information, e.g., by incrementally reconstructing another user's request by observing hit/miss patterns. Current defenses take a sledgehammer approach: they disable APC and cache sharing, isolating users, and sacrificing efficiency for regular users. This paper presents CacheSolidarity, a system that secures multi-tenant LLM serving systems against APC side channels without sacrificing performance and efficiency. CacheSolidarity monitors cache reuse across users, flags suspicious sharing, and selectively isolates prefixes, restricting their reuse only when necessary. Evaluation shows that CacheSolidarity enables up to 70% higher cache reuse and 30% lower inference latency compared to existing defenses that isolate users. CacheSolidarity's lightweight design demonstrates how security in LLM serving does not have to come at the cost of unnecessarily reduced performance or unbearable overheads.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CR",
+        "cs.DC",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CR",
+      "cerebras_quality": 75,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 75,
+      "cerebras_relevance": 85,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Abstract claims a new system (CacheSolidarity) that mitigates APC side\u2011channels while preserving performance, directly addressing a real multi\u2011tenant LLM serving issue. It outlines a monitoring/isolation approach with quantitative gains, though details are limited.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10722v1",
+      "title": "UAV traffic scene understanding: A cross-spectral guided approach and a unified benchmark",
+      "abstract": "Traffic scene understanding from unmanned aerial vehicle (UAV) platforms is crucial for intelligent transportation systems due to its flexible deployment and wide-area monitoring capabilities. However, existing methods face significant challenges in real-world surveillance, as their heavy reliance on optical imagery leads to severe performance degradation under adverse illumination conditions like nighttime and fog. Furthermore, current Visual Question Answering (VQA) models are restricted to elementary perception tasks, lacking the domain-specific regulatory knowledge required to assess complex traffic behaviors. To address these limitations, we propose a novel Cross-spectral Traffic Cognition Network (CTCNet) for robust UAV traffic scene understanding. Specifically, we design a Prototype-Guided Knowledge Embedding (PGKE) module that leverages high-level semantic prototypes from an external Traffic Regulation Memory (TRM) to anchor domain-specific knowledge into visual representations, enabling the model to comprehend complex behaviors and distinguish fine-grained traffic violations. Moreover, we develop a Quality-Aware Spectral Compensation (QASC) module that exploits the complementary characteristics of optical and thermal modalities to perform bidirectional context exchange, effectively compensating for degraded features to ensure robust representation in complex environments. In addition, we construct Traffic-VQA, the first large-scale optical-thermal infrared benchmark for cognitive UAV traffic understanding, comprising 8,180 aligned image pairs and 1.3 million question-answer pairs across 31 diverse types. Extensive experiments demonstrate that CTCNet significantly outperforms state-of-the-art methods in both cognition and perception scenarios. The dataset is available at https://github.com/YuZhang-2004/UAV-traffic-scene-understanding.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "cerebras_quality": 70,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 65,
+      "cerebras_technical_depth": 68,
+      "cerebras_rationale": "The abstract presents a novel cross\u2011spectral network and the first optical\u2011thermal UAV traffic VQA benchmark, detailing specific modules and experiments. VQA and knowledge embedding are pertinent to multimodal LLM work, giving moderate\u2011high novelty and depth, justifying acceptance.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10721v1",
+      "title": "Sample-and-Search: An Effective Algorithm for Learning-Augmented k-Median Clustering in High dimensions",
+      "abstract": "In this paper, we investigate the learning-augmented $k$-median clustering problem, which aims to improve the performance of traditional clustering algorithms by preprocessing the point set with a predictor of error rate $\u03b1\\in [0,1)$. This preprocessing step assigns potential labels to the points before clustering. We introduce an algorithm for this problem based on a simple yet effective sampling method, which substantially improves upon the time complexities of existing algorithms. Moreover, we mitigate their exponential dependency on the dimensionality of the Euclidean space. Lastly, we conduct experiments to compare our method with several state-of-the-art learning-augmented $k$-median clustering methods. The experimental results suggest that our proposed approach can significantly reduce the computational complexity in practice, while achieving a lower clustering cost.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.DS",
+        "cs.LG"
+      ],
+      "primary_category": "cs.DS",
+      "cerebras_quality": 59,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 45,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "Abstract claims a new sampling-based algorithm for learning-augmented k\u2011median with better time bounds and experiments, showing moderate novelty and technical detail, but relevance to LLM system building is weak.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10718v1",
+      "title": "Riemannian MeanFlow for One-Step Generation on Manifolds",
+      "abstract": "Flow Matching enables simulation-free training of generative models on Riemannian manifolds, yet sampling typically still relies on numerically integrating a probability-flow ODE. We propose Riemannian MeanFlow (RMF), extending MeanFlow to manifold-valued generation where velocities lie in location-dependent tangent spaces. RMF defines an average-velocity field via parallel transport and derives a Riemannian MeanFlow identity that links average and instantaneous velocities for intrinsic supervision. We make this identity practical in a log-map tangent representation, avoiding trajectory simulation and heavy geometric computations. For stable optimization, we decompose the RMF objective into two terms and apply conflict-aware multi-task learning to mitigate gradient interference. RMF also supports conditional generation via classifier-free guidance. Experiments on spheres, tori, and SO(3) demonstrate competitive one-step sampling with improved quality-efficiency trade-offs and substantially reduced sampling cost.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 57,
+      "cerebras_confidence": 85,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 35,
+      "cerebras_technical_depth": 75,
+      "cerebras_rationale": "The abstract claims a new Riemannian MeanFlow method with detailed technical components, showing novelty and depth. However, it lacks clear relevance to LLM system building, making it unlikely useful for the target audience.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10713v1",
+      "title": "Probabilistic Verification of Voice Anti-Spoofing Models",
+      "abstract": "Recent advances in generative models have amplified the risk of malicious misuse of speech synthesis technologies, enabling adversaries to impersonate target speakers and access sensitive resources. Although speech deepfake detection has progressed rapidly, most existing countermeasures lack formal robustness guarantees or fail to generalize to unseen generation techniques. We propose PV-VASM, a probabilistic framework for verifying the robustness of voice anti-spoofing models (VASMs). PV-VASM estimates the probability of misclassification under text-to-speech (TTS), voice cloning (VC), and parametric signal transformations. The approach is model-agnostic and enables robustness verification against unseen speech synthesis techniques and input perturbations. We derive a theoretical upper bound on the error probability and validate the method across diverse experimental settings, demonstrating its effectiveness as a practical robustness verification tool.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.SD",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SD",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 65,
+      "cerebras_technical_depth": 68,
+      "cerebras_rationale": "The abstract claims a new probabilistic verification framework with theoretical bounds and experimental validation, offering practical security value for speech-enabled LLMs. Details are moderate, yielding a solid but not outstanding score.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10705v1",
+      "title": "Prism-$\u0394$: Differential Subspace Steering for Prompt Highlighting in Large Language Models",
+      "abstract": "Prompt highlighting steers a large language model to prioritize user-specified text spans during generation. A key challenge is extracting steering directions that capture the difference between relevant and irrelevant contexts, rather than shared structural patterns common to both. We propose PRISM-$\u0394$ (Projection-based Relevance-Informed Steering Method), which decomposes the difference between positive and negative cross-covariance matrices to maximize discriminative energy while eliminating shared directions. Each attention head receives a continuous softplus importance weight, letting weak-but-useful heads contribute at reduced strength. The framework extends naturally to Value representations, capturing content-channel signal that Key-only methods leave unused. Across four benchmarks and five models, PRISM-$\u0394$ matches or exceeds the best existing method on 19 of 20 configurations, with relative gains up to +10.6%, while halving the fluency cost of steering. PRISM-$\u0394$ also scales to long-context retrieval, outperforming the best existing method by up to +4.8% relative gain. PRISM-$\u0394$ is compatible with FlashAttention and adds negligible memory overhead.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "cerebras_quality": 81,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 85,
+      "cerebras_technical_depth": 80,
+      "cerebras_rationale": "The abstract claims a new PRISM-\u0394 method with concrete algorithmic ideas and strong empirical gains, directly addressing a practical LLM steering problem, making it highly relevant and technically detailed.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10701v1",
+      "title": "AlphaFlowTSE: One-Step Generative Target Speaker Extraction via Conditional AlphaFlow",
+      "abstract": "In target speaker extraction (TSE), we aim to recover target speech from a multi-talker mixture using a short enrollment utterance as reference. Recent studies on diffusion and flow-matching generators have improved target-speech fidelity. However, multi-step sampling increases latency, and one-step solutions often rely on a mixture-dependent time coordinate that can be unreliable for real-world conversations. We present AlphaFlowTSE, a one-step conditional generative model trained with a Jacobian-vector product (JVP)-free AlphaFlow objective. AlphaFlowTSE learns mean-velocity transport along a mixture-to-target trajectory starting from the observed mixture, eliminating auxiliary mixing-ratio prediction, and stabilizes training by combining flow matching with an interval-consistency teacher-student target. Experiments on Libri2Mix and REAL-T confirm that AlphaFlowTSE improves target-speaker similarity and real-mixture generalization for downstream automatic speech recognition (ASR).",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.SD",
+        "cs.AI"
+      ],
+      "primary_category": "cs.SD",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 72,
+      "cerebras_relevance": 35,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Claims a new one-step generative TSE method with technical specifics, but relevance to LLM systems is weak, yielding overall score below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10700v1",
+      "title": "Structured Linked Data as a Memory Layer for Agent-Orchestrated Retrieval",
+      "abstract": "Retrieval-Augmented Generation (RAG) systems typically treat documents as flat text, ignoring the structured metadata and linked relationships that knowledge graphs provide. In this paper, we investigate whether structured linked data, specifically Schema.org markup and dereferenceable entity pages served by a Linked Data Platform, can improve retrieval accuracy and answer quality in both standard and agentic RAG systems. We conduct a controlled experiment across four domains (editorial, legal, travel, e-commerce) using Vertex AI Vector Search 2.0 for retrieval and the Google Agent Development Kit (ADK) for agentic reasoning. Our experimental design tests seven conditions: three document representations (plain HTML, HTML with JSON-LD, and an enhanced agentic-optimized entity page) crossed with two retrieval modes (standard RAG and agentic RAG with multi-hop link traversal), plus an Enhanced+ condition that adds rich navigational affordances and entity interlinking. Our results reveal that while JSON-LD markup alone provides only modest improvements, our enhanced entity page format, incorporating llms.txt-style agent instructions, breadcrumbs, and neural search capabilities, achieves substantial gains: +29.6% accuracy improvement for standard RAG and +29.8% for the full agentic pipeline. The Enhanced+ variant, with richer navigational affordances, achieves the highest absolute scores (accuracy: 4.85/5, completeness: 4.55/5), though the incremental gain over the base enhanced format is not statistically significant. We release our dataset, evaluation framework, and enhanced entity page templates to support reproducibility.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.IR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.IR",
+      "cerebras_quality": 73,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 80,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "Claims a new combination of linked data with RAG/agentic pipelines, shows concrete experimental gains, and offers practical templates\u2014useful for LLM system builders despite limited algorithmic detail.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10697v1",
+      "title": "EvoSchema: Towards Text-to-SQL Robustness Against Schema Evolution",
+      "abstract": "Neural text-to-SQL models, which translate natural language questions (NLQs) into SQL queries given a database schema, have achieved remarkable performance. However, database schemas frequently evolve to meet new requirements. Such schema evolution often leads to performance degradation for models trained on static schemas. Existing work either mainly focuses on simply paraphrasing some syntactic or semantic mappings among NLQ, DB and SQL, or lacks a comprehensive and controllable way to investigate the model robustness issue under the schema evolution, which is insufficient when facing the increasingly complex and rich database schema changes in reality, especially in the LLM era. To address the challenges posed by schema evolution, we present EvoSchema, a comprehensive benchmark designed to assess and enhance the robustness of text-to-SQL systems under real-world schema changes. EvoSchema introduces a novel schema evolution taxonomy, encompassing ten perturbation types across columnlevel and table-level modifications, systematically simulating the dynamic nature of database schemas. Through EvoSchema, we conduct an in-depth evaluation spanning different open source and closed-source LLMs, revealing that table-level perturbations have a significantly greater impact on model performance compared to column-level changes. Furthermore, EvoSchema inspires the development of more resilient text-to-SQL systems, in terms of both model training and database design. The models trained on EvoSchema's diverse schema designs can force the model to distinguish the schema difference for the same questions to avoid learning spurious patterns, which demonstrate remarkable robustness compared to those trained on unperturbed data on average. This benchmark offers valuable insights into model behavior and a path forward for designing systems capable of thriving in dynamic, real-world environments.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.DB",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "primary_category": "cs.DB",
+      "cerebras_quality": 73,
+      "cerebras_confidence": 82,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 72,
+      "cerebras_relevance": 78,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "Introduces a new benchmark and taxonomy for schema evolution robustness, directly useful for LLM deployment, with concrete evaluation and training insights, though details are limited.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10695v1",
+      "title": "RandMark: On Random Watermarking of Visual Foundation Models",
+      "abstract": "Being trained on large and diverse datasets, visual foundation models (VFMs) can be fine-tuned to achieve remarkable performance and efficiency in various downstream computer vision tasks. The high computational cost of data collection and training makes these models valuable assets, which motivates some VFM owners to distribute them alongside a license to protect their intellectual property rights. In this paper, we propose an approach to ownership verification of visual foundation models that leverages a small encoder-decoder network to embed digital watermarks into an internal representation of a hold-out set of input images. The method is based on random watermark embedding, which makes the watermark statistics detectable in functional copies of the watermarked model. Both theoretically and experimentally, we demonstrate that the proposed method yields a low probability of false detection for non-watermarked models and a low probability of false misdetection for watermarked models.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "cerebras_quality": 66,
+      "cerebras_confidence": 75,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 60,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "Abstract claims a new random watermarking method for visual foundation models with theoretical and experimental validation, showing moderate relevance to LLM system IP protection and sufficient technical detail.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10692v1",
+      "title": "Repurposing Backdoors for Good: Ephemeral Intrinsic Proofs for Verifiable Aggregation in Cross-silo Federated Learning",
+      "abstract": "While Secure Aggregation (SA) protects update confidentiality in Cross-silo Federated Learning, it fails to guarantee aggregation integrity, allowing malicious servers to silently omit or tamper with updates. Existing verifiable aggregation schemes rely on heavyweight cryptography (e.g., ZKPs, HE), incurring computational costs that scale poorly with model size. In this paper, we propose a lightweight architecture that shifts from extrinsic cryptographic proofs to \\textit{Intrinsic Proofs}. We repurpose backdoor injection to embed verification signals directly into model parameters. By harnessing Catastrophic Forgetting, these signals are robust for immediate verification yet ephemeral, naturally decaying to preserve final model utility. We design a randomized, single-verifier auditing framework compatible with SA, ensuring client anonymity and preventing signal collision without trusted third parties. Experiments on SVHN, CIFAR-10, and CIFAR-100 demonstrate high detection probabilities against malicious servers. Notably, our approach achieves over $1000\\times$ speedup on ResNet-18 compared to cryptographic baselines, effectively scaling to large models.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CR",
+      "cerebras_quality": 68,
+      "cerebras_confidence": 75,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 58,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "Claims a new intrinsic proof method using backdoors, shows concrete algorithm and experiments with large speedups. Relevance to LLM engineering is moderate (federated learning), but overall quality meets threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10689v1",
+      "title": "Contract And Conquer: How to Provably Compute Adversarial Examples for a Black-Box Model?",
+      "abstract": "Black-box adversarial attacks are widely used as tools to test the robustness of deep neural networks against malicious perturbations of input data aimed at a specific change in the output of the model. Such methods, although they remain empirically effective, usually do not guarantee that an adversarial example can be found for a particular model. In this paper, we propose Contract And Conquer (CAC), an approach to provably compute adversarial examples for neural networks in a black-box manner. The method is based on knowledge distillation of a black-box model on an expanding distillation dataset and precise contraction of the adversarial example search space. CAC is supported by the transferability guarantee: we prove that the method yields an adversarial example for the black-box model within a fixed number of algorithm iterations. Experimentally, we demonstrate that the proposed approach outperforms existing state-of-the-art black-box attack methods on ImageNet dataset for different target models, including vision transformers.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 45,
+      "cerebras_technical_depth": 75,
+      "cerebras_rationale": "Claims a provable black-box attack method, showing decent technical detail, but relevance to LLM systems is limited, yielding overall score below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10680v1",
+      "title": "A Platform-Agnostic Multimodal Digital Human Modelling Framework: Neurophysiological Sensing in Game-Based Interaction",
+      "abstract": "Digital Human Modelling (DHM) is increasingly shaped by advances in AI, wearable biosensing, and interactive digital environments, particularly in research addressing accessibility and inclusion. However, many AI-enabled DHM approaches remain tightly coupled to specific platforms, tasks, or interpretative pipelines, limiting reproducibility, scalability, and ethical reuse. This paper presents a platform-agnostic DHM framework designed to support AI-ready multimodal interaction research by explicitly separating sensing, interaction modelling, and inference readiness. The framework integrates the OpenBCI Galea headset as a unified multimodal sensing layer, providing concurrent EEG, EMG, EOG, PPG, and inertial data streams, alongside a reproducible, game-based interaction environment implemented using SuperTux. Rather than embedding AI models or behavioural inference, physiological signals are represented as structured, temporally aligned observables, enabling downstream AI methods to be applied under appropriate ethical approval. Interaction is modelled using computational task primitives and timestamped event markers, supporting consistent alignment across heterogeneous sensors and platforms. Technical verification via author self-instrumentation confirms data integrity, stream continuity, and synchronisation; no human-subjects evaluation or AI inference is reported. Scalability considerations are discussed with respect to data throughput, latency, and extension to additional sensors or interaction modalities. Illustrative use cases demonstrate how the framework can support AI-enabled DHM and HCI studies, including accessibility-oriented interaction design and adaptive systems research, without requiring architectural modifications. The proposed framework provides an emerging-technology-focused infrastructure for future ethics-approved, inclusive DHM research.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.HC",
+        "cs.AI"
+      ],
+      "primary_category": "cs.HC",
+      "cerebras_quality": 46,
+      "cerebras_confidence": 82,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 58,
+      "cerebras_relevance": 35,
+      "cerebras_technical_depth": 48,
+      "cerebras_rationale": "Abstract claims a new platform-agnostic DHM framework, but relevance to LLM systems is low and technical details are sparse; scores reflect modest novelty and depth, yielding overall quality below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10678v1",
+      "title": "Surrogate models for nuclear fusion with parametric Shallow Recurrent Decoder Networks: applications to magnetohydrodynamics",
+      "abstract": "Magnetohydrodynamic (MHD) effects play a key role in the design and operation of nuclear fusion systems, where electrically conducting fluids (such as liquid metals or molten salts in reactor blankets) interact with magnetic fields of varying intensity and orientation, which affect the resulting flow. The numerical resolution of MHD models involves highly nonlinear multiphysics systems of equations and can become computationally expensive, particularly in multi-query, parametric, or real-time contexts. This work investigates a fully data-driven framework for MHD state reconstruction that combines dimensionality reduction via Singular Value Decomposition (SVD) with the SHallow REcurrent Decoder (SHRED), a neural network architecture designed to recover the full spatio-temporal state from sparse time-series measurements of a limited number of observables. The methodology is applied to a parametric MHD test case involving compressible lead-lithium flow in a stepped channel subjected to thermal gradients and magnetic fields spanning a broad range of intensities. To improve efficiency, the full-order dataset is first compressed using SVD, yielding a reduced representation used as reference truth for training. Only temperature measurements from three sensors are provided as input, while the network reconstructs the full fields of velocity, pressure, and temperature. To assess robustness with respect to sensor placement, thirty randomly generated sensor configurations are tested in ensemble mode. Results show that SHRED accurately reconstructs the full MHD state even for magnetic field intensities not included in the training set. These findings demonstrate the potential of SHRED as a computationally efficient surrogate modeling strategy for fusion-relevant multiphysics problems, enabling low-cost state estimation with possible applications in real-time monitoring and control.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 34,
+      "cerebras_confidence": 85,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 30,
+      "cerebras_relevance": 20,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Abstract presents a new surrogate modeling method for MHD, but offers no LLM relevance, limited novelty for LLM systems, and only moderate technical detail. Overall score below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10677v1",
+      "title": "Emulating Clinician Cognition via Self-Evolving Deep Clinical Research",
+      "abstract": "Clinical diagnosis is a complex cognitive process, grounded in dynamic cue acquisition and continuous expertise accumulation. Yet most current artificial intelligence (AI) systems are misaligned with this reality, treating diagnosis as single-pass retrospective prediction while lacking auditable mechanisms for governed improvement. We developed DxEvolve, a self-evolving diagnostic agent that bridges these gaps through an interactive deep clinical research workflow. The framework autonomously requisitions examinations and continually externalizes clinical experience from increasing encounter exposure as diagnostic cognition primitives. On the MIMIC-CDM benchmark, DxEvolve improved diagnostic accuracy by 11.2% on average over backbone models and reached 90.4% on a reader-study subset, comparable to the clinician reference (88.8%). DxEvolve improved accuracy on an independent external cohort by 10.2% (categories covered by the source cohort) and 17.1% (uncovered categories) compared to the competitive method. By transforming experience into a governable learning asset, DxEvolve supports an accountable pathway for the continual evolution of clinical AI.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.AI",
+      "cerebras_quality": 62,
+      "cerebras_confidence": 75,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 55,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Claims a new self\u2011evolving diagnostic agent with solid results, but lacks LLM specifics, offers limited direct value to LLM system builders, and provides few technical details beyond high\u2011level description.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10676v1",
+      "title": "Spatio-Temporal Attention Graph Neural Network: Explaining Causalities With Attention",
+      "abstract": "Industrial Control Systems (ICS) underpin critical infrastructure and face growing cyber-physical threats due to the convergence of operational technology and networked environments. While machine learning-based anomaly detection approaches in ICS shows strong theoretical performance, deployment is often limited by poor explainability, high false-positive rates, and sensitivity to evolving system behavior, i.e., baseline drifting. We propose a Spatio-Temporal Attention Graph Neural Network (STA-GNN) for unsupervised and explainable anomaly detection in ICS that models both temporal dynamics and relational structure of the system. Sensors, controllers, and network entities are represented as nodes in a dynamically learned graph, enabling the model to capture inter-dependencies across physical processes and communication patterns. Attention mechanisms provide influential relationships, supporting inspection of correlations and potential causal pathways behind detected events. The approach supports multiple data modalities, including SCADA point measurements, network flow features, and payload features, and thus enables unified cyber-physical analysis. To address operational requirements, we incorporate a conformal prediction strategy to control false alarm rates and monitor performance degradation under drifting of the environment. Our findings highlight the possibilities and limitations of model evaluation and common pitfalls in anomaly detection in ICS. Our findings emphasise the importance of explainable, drift-aware evaluation for reliable deployment of learning-based security monitoring systems.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "cs.CE"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 48,
+      "cerebras_confidence": 85,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 25,
+      "cerebras_technical_depth": 55,
+      "cerebras_rationale": "The abstract claims a new STA\u2011GNN with attention and conformal prediction, showing moderate novelty and technical detail, but it is unrelated to LLM system building, yielding low relevance and overall quality below the acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10673v1",
+      "title": "Breaking User-Centric Agency: A Tri-Party Framework for Agent-Based Recommendation",
+      "abstract": "Recent advances in large language models (LLMs) have stimulated growing interest in agent-based recommender systems, enabling language-driven interaction and reasoning for more expressive preference modeling. However, most existing agentic approaches remain predominantly user-centric, treating items as passive entities and neglecting the interests of other critical stakeholders. This limitation exacerbates exposure concentration and long-tail under-representation, threatening long-term system sustainability. In this work, we identify this fundamental limitation and propose the first Tri-party LLM-agent Recommendation framework (TriRec) that explicitly coordinates user utility, item exposure, and platform-level fairness. The framework employs a two-stage architecture: Stage~1 empowers item agents with personalized self-promotion to improve matching quality and alleviate cold-start barriers, while Stage~2 uses a platform agent for sequential multi-objective re-ranking, balancing user relevance, item utility, and exposure fairness. Experiments on multiple benchmarks show consistent gains in accuracy, fairness, and item-level utility. Moreover, we find that item self-promotion can simultaneously enhance fairness and effectiveness, challenging the conventional trade-off assumption between relevance and fairness. Our code is available at https://github.com/Marfekey/TriRec.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.IR"
+      ],
+      "primary_category": "cs.IR",
+      "cerebras_quality": 72,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 70,
+      "cerebras_technical_depth": 65,
+      "cerebras_rationale": "Abstract claims a first-of-its-kind tri\u2011party LLM\u2011agent framework with two\u2011stage architecture and shows experimental gains, indicating notable novelty and practical relevance, with moderate technical detail.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10661v1",
+      "title": "FAME: Formal Abstract Minimal Explanation for Neural Networks",
+      "abstract": "We propose FAME (Formal Abstract Minimal Explanations), a new class of abductive explanations grounded in abstract interpretation. FAME is the first method to scale to large neural networks while reducing explanation size. Our main contribution is the design of dedicated perturbation domains that eliminate the need for traversal order. FAME progressively shrinks these domains and leverages LiRPA-based bounds to discard irrelevant features, ultimately converging to a formal abstract minimal explanation. To assess explanation quality, we introduce a procedure that measures the worst-case distance between an abstract minimal explanation and a true minimal explanation. This procedure combines adversarial attacks with an optional VERIX+ refinement step. We benchmark FAME against VERIX+ and demonstrate consistent gains in both explanation size and runtime on medium- to large-scale neural networks.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.AI",
+      "cerebras_quality": 75,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 82,
+      "cerebras_relevance": 70,
+      "cerebras_technical_depth": 75,
+      "cerebras_rationale": "Abstract claims a first\u2011of\u2011its\u2011kind scalable explanation method with concrete technical components and benchmarks, showing notable novelty and solid depth; relevance to LLMs is moderate but useful for large NN interpretability.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10652v1",
+      "title": "Are Video Reasoning Models Ready to Go Outside?",
+      "abstract": "In real-world deployment, vision-language models often encounter disturbances such as weather, occlusion, and camera motion. Under such conditions, their understanding and reasoning degrade substantially, revealing a gap between clean, controlled (i.e., unperturbed) evaluation settings and real-world robustness. To address this limitation, we propose ROVA, a novel training framework that improves robustness by modeling a robustness-aware consistency reward under spatio-temporal corruptions. ROVA introduces a difficulty-aware online training strategy that prioritizes informative samples based on the model's evolving capability. Specifically, it continuously re-estimates sample difficulty via self-reflective evaluation, enabling adaptive training with a robustness-aware consistency reward. We also introduce PVRBench, a new benchmark that injects real-world perturbations into embodied video datasets to assess both accuracy and reasoning quality under realistic disturbances. We evaluate ROVA and baselines on PVRBench, UrbanVideo, and VisBench, where open-source and proprietary models suffer up to 35% and 28% drops in accuracy and reasoning under realistic perturbations. ROVA effectively mitigates performance degradation, boosting relative accuracy by at least 24% and reasoning by over 9% compared with baseline models (QWen2.5/3-VL, InternVL2.5, Embodied-R). These gains transfer to clean standard benchmarks, yielding consistent improvements.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "primary_category": "cs.CV",
+      "cerebras_quality": 77,
+      "cerebras_confidence": 78,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 80,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "The abstract claims a new robustness\u2011aware training framework (ROVA) and a new benchmark (PVRBench), directly addressing real\u2011world deployment issues for vision\u2011language models, with concrete technical ideas and measurable gains.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10651v1",
+      "title": "Interleaving Scheduling and Motion Planning with Incremental Learning of Symbolic Space-Time Motion Abstractions",
+      "abstract": "Task and Motion Planning combines high-level task sequencing (what to do) with low-level motion planning (how to do it) to generate feasible, collision-free execution plans. However, in many real-world domains, such as automated warehouses, tasks are predefined, shifting the challenge to if, when, and how to execute them safely and efficiently under resource, time and motion constraints. In this paper, we formalize this as the Scheduling and Motion Planning problem for multi-object navigation in shared workspaces. We propose a novel solution framework that interleaves off-the-shelf schedulers and motion planners in an incremental learning loop. The scheduler generates candidate plans, while the motion planner checks feasibility and returns symbolic feedback, i.e., spatial conflicts and timing adjustments, to guide the scheduler towards motion-feasible solutions. We validate our proposal on logistics and job-shop scheduling benchmarks augmented with motion tasks, using state-of-the-art schedulers and sampling-based motion planners. Our results show the effectiveness of our framework in generating valid plans under complex temporal and spatial constraints, where synchronized motion is critical.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.RO",
+        "cs.AI"
+      ],
+      "primary_category": "cs.RO",
+      "cerebras_quality": 54,
+      "cerebras_confidence": 85,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 70,
+      "cerebras_relevance": 35,
+      "cerebras_technical_depth": 60,
+      "cerebras_rationale": "Abstract claims a novel interleaved scheduling/motion planning framework with incremental learning, but relevance to LLM systems is low and technical specifics are limited, yielding overall sub\u2011threshold quality.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10641v1",
+      "title": "Detecting and Eliminating Neural Network Backdoors Through Active Paths with Application to Intrusion Detection",
+      "abstract": "Machine learning backdoors have the property that the machine learning model should work as expected on normal inputs, but when the input contains a specific $\\textit{trigger}$, it behaves as the attacker desires. Detecting such triggers has been proven to be extremely difficult. In this paper, we present a novel and explainable approach to detect and eliminate such backdoor triggers based on active paths found in neural networks. We present promising experimental evidence of our approach, which involves injecting backdoors into a machine learning model used for intrusion detection.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "primary_category": "cs.CR",
+      "cerebras_quality": 61,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 68,
+      "cerebras_relevance": 58,
+      "cerebras_technical_depth": 55,
+      "cerebras_rationale": "Abstract claims a novel explainable backdoor detection via active paths, but lacks LLM-specific focus and detailed methodology, yielding moderate novelty, limited relevance to LLMs, and shallow technical description.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10640v1",
+      "title": "Making Bielik LLM Reason (Better): A Field Report",
+      "abstract": "This paper presents a research program dedicated to evaluating and advancing the reasoning capabilities of Bielik, a Polish large language model. The study describes a number of stages of work: initial benchmarking and creation of evaluation methodology, analyzing of comparative results with other LLMs and outlining of future prospects that take into account the limitations of the analyses conducted so far and aims to keep Bielik in the race give the ever-changing -- and competitive -- AI landscape.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.CL"
+      ],
+      "primary_category": "cs.CL",
+      "cerebras_quality": 48,
+      "cerebras_confidence": 70,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 45,
+      "cerebras_relevance": 55,
+      "cerebras_technical_depth": 40,
+      "cerebras_rationale": "Abstract lacks explicit novel contribution, provides only high-level evaluation plan, and offers no concrete technical details, limiting its practical value for LLM engineers.",
+      "opus_relevant": true
+    },
+    {
+      "arxiv_id": "2603.10625v1",
+      "title": "A Hypergraph-Based Framework for Exploratory Business Intelligence",
+      "abstract": "Business Intelligence (BI) analysis is evolving towards Exploratory BI, an iterative, multi-round exploration paradigm where analysts progressively refine their understanding. However, traditional BI systems impose critical limits for Exploratory BI: heavy reliance on expert knowledge, high computational costs, static schemas, and lack of reusability. We present ExBI, a novel system that introduces the hypergraph data model with operators, including Source, Join, and View, to enable dynamic schema evolution and materialized view reuse. Using sampling-based algorithms with provable estimation guarantees, ExBI addresses the computational bottlenecks, while maintaining analytical accuracy. Experiments on LDBC datasets demonstrate that ExBI achieves significant speedups over existing systems: on average 16.21x (up to 146.25x) compared to Neo4j and 46.67x (up to 230.53x) compared to MySQL, while maintaining high accuracy with an average error rate of only 0.27% for COUNT, enabling efficient and accurate large-scale exploratory BI workflows.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.DB",
+        "cs.IR"
+      ],
+      "primary_category": "cs.DB",
+      "cerebras_quality": 40,
+      "cerebras_confidence": 80,
+      "cerebras_verdict": "reject",
+      "cerebras_novelty": 30,
+      "cerebras_relevance": 30,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "Paper introduces a hypergraph BI system, not LLM-focused. Novelty and relevance to LLM systems are low; technical depth is decent but overall score falls below acceptance threshold.",
+      "opus_relevant": false
+    },
+    {
+      "arxiv_id": "2603.10624v1",
+      "title": "Reinforcement Learning with Conditional Expectation Reward",
+      "abstract": "Reinforcement Learning with Verifiable Rewards (RLVR) has proven effective in enhancing the reasoning capabilities of large language models, particularly in domains such as mathematics where reliable rule-based verifiers can be constructed. However, the reliance on handcrafted, domain-specific verification rules substantially limits the applicability of RLVR to general reasoning domains with free-form answers, where valid answers often exhibit significant variability, making it difficult to establish complete and accurate rules. To address this limitation, we propose Conditional Expectation Reward (CER), which leverages the large language model itself as an implicit verifier, and is therefore applicable to general domains and eliminates the need for external verifiers or auxiliary models. CER is defined as the expected likelihood of generating the reference answer conditioned on the generated answer. In contrast to rule-based verifiers that yield binary feedback, CER provides a soft, graded reward signal that reflects varying degrees of correctness, making it better suited to tasks where answers vary in correctness. Experimental results demonstrate that CER is effective across a wide range of reasoning tasks, spanning both mathematical and general domains, indicating that CER serves as a flexible and general verification mechanism. The code is available at https://github.com/changyi7231/CER.",
+      "published": "2026-03-11",
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.CL"
+      ],
+      "primary_category": "cs.LG",
+      "cerebras_quality": 77,
+      "cerebras_confidence": 75,
+      "cerebras_verdict": "accept",
+      "cerebras_novelty": 78,
+      "cerebras_relevance": 80,
+      "cerebras_technical_depth": 70,
+      "cerebras_rationale": "The abstract claims a new reward formulation (CER) for RL fine\u2011tuning LLMs, directly addresses verification challenges, and reports experiments across domains, indicating practical relevance and concrete methodology.",
+      "opus_relevant": true
+    }
+  ]
+}

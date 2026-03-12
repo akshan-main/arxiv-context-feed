@@ -1,75 +1,35 @@
 # LLM Judge Configuration
 # Controls the Stage 2 abstract evaluation.
 # Edit via Google Form -> Issue -> PR workflow (whitelisted fields only).
-
-# ============================================================================
-# LLM Provider and Model
-# ============================================================================
-# All providers use OpenAI-compatible API (/v1/chat/completions).
-# Swap provider by changing env vars — zero code changes.
-# On rate limit (HTTP 429), auto-falls back to local Qwen2.5-14B.
 #
-# JUDGE uses LLM_* env vars. DISCOVERY AGENT uses DISCOVERY_* env vars
-# (falls back to LLM_* if not set).
+# Provider: Cerebras (OpenAI-compatible /v1/chat/completions).
+# On rate limit (HTTP 429), rotates keys round-robin.
 #
-# ============================================================================
-# RECOMMENDED SETUP (free tier, handles 2000+ papers/day)
-# ============================================================================
-#
-# Fallback chain: Cerebras → Gemini → Local Qwen
-# Best model (Cerebras Qwen3 235B) is always tried first for BOTH
-# judge and discovery. Gemini is secondary. Local Qwen is last resort.
-#
-# Primary (Cerebras — best model, 1M tokens/day):
+# Env vars:
 #   LLM_BASE_URL=https://api.cerebras.ai/v1
-#   LLM_API_KEY=<cerebras-api-key>
-#   model_id below: qwen-3-235b-a22b-instruct-2507
+#   LLM_API_KEYS=key1,key2  (comma-separated for rotation)
 #
-# Secondary fallback (Gemini — 250 RPD/key, use 5+ keys):
-#   LLM_SECONDARY_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
-#   LLM_SECONDARY_API_KEYS=key1,key2,key3,key4,key5
-#   LLM_SECONDARY_MODEL_ID=gemini-2.5-flash
-#
-# Final fallback (Local Qwen — always available):
-#   LLM_FALLBACK_BASE_URL=http://127.0.0.1:8080/v1
-#   (auto-configured, no env vars needed)
-#
-# ============================================================================
-# Provider Reference
-# ============================================================================
-#
-# ┌────────────────────────────────────────────────────────────────┐
-# │ Provider   │ Best Model     │ Free Tier        │ 2K papers? │
-# │────────────│────────────────│──────────────────│────────────│
-# │ Cerebras   │ Qwen3 235B     │ 1M tokens/day    │ Partial    │
-# │ Gemini     │ 2.5 Flash      │ 250 req/day/key  │ With 5+keys│
-# │ Groq       │ Llama 3.3 70B  │ 1K req/day       │ No         │
-# │ Local Qwen │ Qwen2.5-14B    │ Unlimited        │ Fallback   │
-# └────────────────────────────────────────────────────────────────┘
-#
-# On 429: rotates primary keys → secondary keys → local Qwen.
+# DISCOVERY AGENT uses DISCOVERY_* env vars if set, else falls back to LLM_*.
 #
 provider: cerebras
 model_id: gpt-oss-120b
 
 # Prompt version (bumped on any template change)
-prompt_version: 4
+prompt_version: 5
 
 # Strictness preset: low, medium, or high
 strictness: medium
 
-# Strictness presets define quality thresholds
-# All values are integers 0-100
+# Strictness presets define quality thresholds.
+# Calibrated for gpt-oss-120b (scores ~5-10 points higher than Opus 4.6).
+# All values are integers 0-100.
 strictness_presets:
   low:
-    min_quality_i: 40
-    min_topic_confidence_i: 40
+    min_quality_i: 50
   medium:
-    min_quality_i: 60
-    min_topic_confidence_i: 60
+    min_quality_i: 65
   high:
-    min_quality_i: 80
-    min_topic_confidence_i: 80
+    min_quality_i: 85
 
 # Maximum number of evidence quotes from abstract
 max_evidence_quotes: 3

@@ -59,6 +59,9 @@ def parse_issue_payload(issue_number: str) -> dict:
     if "backfill" not in labels:
         print(f"Issue #{issue_number} missing 'backfill' label. Labels: {labels}", file=sys.stderr)
         sys.exit(1)
+    if "processed" in labels:
+        print(f"Issue #{issue_number} already processed. Skipping.", file=sys.stderr)
+        sys.exit(1)
 
     body = data.get("body", "")
     match = re.search(r"```json\s*\n(.*?)\n```", body, re.DOTALL)
@@ -92,7 +95,7 @@ def build_command(payload: dict) -> str:
             print("No identifiers provided", file=sys.stderr)
             sys.exit(1)
         safe_ids = [validate_identifier(i) for i in ids]
-        id_flags = " ".join(f"-i {ident}" for ident in safe_ids)
+        id_flags = " ".join(f"-i '{ident}'" for ident in safe_ids)
         return f"contextual-arxiv-feed backfill-identifiers {id_flags}{dry_flag}"
 
     else:

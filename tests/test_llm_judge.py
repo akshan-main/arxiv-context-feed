@@ -19,7 +19,7 @@ def make_topic(key="test-topic", name="Test Topic"):
     )
 
 
-def make_config(provider="local", model_id="qwen2.5-14b-instruct-q4_k_m"):
+def make_config(provider="cerebras", model_id="gpt-oss-120b"):
     return JudgeConfig(provider=provider, model_id=model_id)
 
 
@@ -27,7 +27,7 @@ class TestCreateJudgeFactory:
     """Test create_judge factory routing."""
 
     def test_local_provider_routes_to_llm_judge(self):
-        config = make_config(provider="local", model_id="qwen2.5-14b")
+        config = make_config(provider="cerebras", model_id="gpt-oss-120b")
         mock_judge = MagicMock()
         with patch(
             "contextual_arxiv_feed.judge.llm_judge.LLMJudge",
@@ -37,7 +37,7 @@ class TestCreateJudgeFactory:
             assert judge is mock_judge
 
     def test_cerebras_provider_routes_to_llm_judge(self):
-        config = make_config(provider="cerebras", model_id="qwen-3-235b")
+        config = make_config(provider="cerebras", model_id="gpt-oss-120b")
         mock_judge = MagicMock()
         with patch(
             "contextual_arxiv_feed.judge.llm_judge.LLMJudge",

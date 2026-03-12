@@ -98,17 +98,17 @@ class JudgeConfig(BaseModel):
 
     model_config = {"protected_namespaces": ()}
 
-    provider: str = Field(default="gemini", description="LLM provider")
-    model_id: str = Field(default="gemini-2.5-flash", description="Model ID")
+    provider: str = Field(default="cerebras", description="LLM provider")
+    model_id: str = Field(default="gpt-oss-120b", description="Model ID")
     prompt_version: int = Field(default=1, description="Prompt template version")
     strictness: Literal["low", "medium", "high"] = Field(
         default="medium", description="Strictness preset"
     )
     strictness_presets: dict[str, StrictnessPreset] = Field(
         default_factory=lambda: {
-            "low": StrictnessPreset(min_quality_i=40),
-            "medium": StrictnessPreset(min_quality_i=60),
-            "high": StrictnessPreset(min_quality_i=80),
+            "low": StrictnessPreset(min_quality_i=50),
+            "medium": StrictnessPreset(min_quality_i=65),
+            "high": StrictnessPreset(min_quality_i=85),
         }
     )
     max_rationale_length: int = Field(default=300, ge=50, le=1000)
@@ -185,7 +185,7 @@ class AppConfig(BaseModel):
     judge_provider: str = Field(default="")
     judge_model_id: str = Field(default="")
     llm_base_url: str = Field(
-        default="https://generativelanguage.googleapis.com/v1beta/openai"
+        default="https://api.cerebras.ai/v1"
     )
     llm_api_key: str = Field(default="")
     arxiv_throttle_seconds: int = Field(default=3)
@@ -237,7 +237,7 @@ def load_config(config_dir: Path | None = None) -> AppConfig:
         judge_model_id=judge_model_id,
         llm_base_url=os.getenv(
             "LLM_BASE_URL",
-            "https://generativelanguage.googleapis.com/v1beta/openai",
+            "https://api.cerebras.ai/v1",
         ),
         llm_api_key=os.getenv("LLM_API_KEY", ""),
         arxiv_throttle_seconds=int(os.getenv("ARXIV_THROTTLE_SECONDS", "3")),

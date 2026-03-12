@@ -1,0 +1,126 @@
+==========================================================================================
+SAFETY NET EVALUATION REPORT
+Date: 2026-03-05T10:31:32.118249
+Ground truth: Opus 4.6 (Claude) manual evaluation of full abstracts
+Judge model: Cerebras gpt-oss-120b
+Sample: 100 papers (stratified: 30 safety_net, 25 borderline,
+         10 mid, 5 high, 30 rejected) — seed=42
+==========================================================================================
+
+
+## GROUP-LEVEL ACCURACY (Cerebras quality groups vs Opus ground truth)
+----------------------------------------------------------------------
+  safety_net               :   7/ 30 relevant ( 23.3%)
+  borderline_65_69         :  15/ 25 relevant ( 60.0%)
+  mid_70_79                :   6/ 10 relevant ( 60.0%)
+  high_80plus              :   5/  5 relevant (100.0%)
+  rejected                 :   1/ 30 relevant (  3.3%)
+  TOTAL                    :  34/100 relevant ( 34.0%)
+
+
+## QUALITY SCORE DISTRIBUTION BY OPUS RELEVANCE
+----------------------------------------------------------------------
+  Relevant papers   (n= 34): mean q=68.9, min=50, max=81
+  Irrelevant papers (n= 66): mean q=59.7, min=48, max=78
+
+
+## SAFETY NET CONFIGURATION COMPARISON
+----------------------------------------------------------------------------------------------------
+  Config                           Accept Reject   Prec Recall     F1    FP    FN
+----------------------------------------------------------------------------------------------------
+  CURRENT: q>=65 OR c<80               70     30 47.1% 97.1% 63.5%    37     1 <--
+  q>=65 (no safety net)                40     60 65.0% 76.5% 70.3%    14     8
+  q>=60                                68     32 47.1% 94.1% 62.7%    36     2
+  q>=70                                15     85 73.3% 32.4% 44.9%     4    23
+  q>=65 OR (q>=60 AND c<70)            40     60 65.0% 76.5% 70.3%    14     8
+  q>=65 OR (q>=60 AND c<75)            41     59 65.9% 79.4% 72.0%    14     7
+  q>=65 OR (q>=55 AND c<70)            40     60 65.0% 76.5% 70.3%    14     8
+  q>=65 OR (q>=55 AND c<75)            41     59 65.9% 79.4% 72.0%    14     7
+  q>=65 OR (q>=50 AND c<70)            40     60 65.0% 76.5% 70.3%    14     8
+  q>=68                                25     75 76.0% 55.9% 64.4%     6    15
+  q>=65 OR (q>=60 AND c<=70)           41     59 65.9% 79.4% 72.0%    14     7
+  q>=63                                48     52 58.3% 82.4% 68.3%    20     6
+  q>=63 OR (q>=58 AND c<75)            49     51 59.2% 85.3% 69.9%    20     5
+
+  BEST F1: q>=65 OR (q>=60 AND c<75) (F1=0.720)
+
+
+## SAFETY NET PAPERS DETAIL (q<65, c<80)
+Papers that would be accepted by current safety net but q<65
+------------------------------------------------------------------------------------------
+  7 relevant / 30 total (23% precision)
+
+  q=63 c=78 opus=RELEVANT | The Controllability Trap: A Governance Framework for Military AI 
+  q=63 c=78 opus=RELEVANT | RAG vs. GraphRAG: A Systematic Evaluation and Key Insights
+  q=62 c=78 opus=RELEVANT | Causal Learning Should Embrace the Wisdom of the Crowd
+  q=62 c=78 opus=RELEVANT | Testing learning hypotheses using neural networks by manipulating
+  q=62 c=70 opus=RELEVANT | Accelerating OpenPangu Inference on NPU via Speculative Decoding
+  q=58 c=75 opus=RELEVANT | A Systematic Analysis of Biases in Large Language Models
+  q=50 c=78 opus=RELEVANT | The Epistemological Consequences of Large Language Models: Rethin
+  q=64 c=78 opus=NOT_REL | Out-of-distribution transfer of PDE foundation models to material
+  q=63 c=78 opus=NOT_REL | Trust Me, I Can Convince You: The Contextualized Argument Apprais
+  q=63 c=75 opus=NOT_REL | Controllable Generative Sandbox for Causal Inference
+  q=63 c=78 opus=NOT_REL | JANUS: Structured Bidirectional Generation for Guaranteed Constra
+  q=62 c=78 opus=NOT_REL | AutoQD: Automatic Discovery of Diverse Behaviors with Quality-Div
+  q=62 c=75 opus=NOT_REL | VITA: Vision-to-Action Flow Matching Policy
+  q=61 c=75 opus=NOT_REL | SPRINT: Semi-supervised Prototypical Representation for Few-Shot 
+  q=61 c=78 opus=NOT_REL | Learning Approximate Nash Equilibria in Cooperative Multi-Agent R
+  q=61 c=75 opus=NOT_REL | Non-Invasive Reconstruction of Intracranial EEG Across the Deep T
+  q=61 c=78 opus=NOT_REL | Scalable Contrastive Causal Discovery under Unknown Soft Interven
+  q=60 c=75 opus=NOT_REL | Role-Aware Conditional Inference for Spatiotemporal Ecosystem Car
+  q=60 c=78 opus=NOT_REL | InstMeter: An Instruction-Level Method to Predict Energy and Late
+  q=60 c=75 opus=NOT_REL | Diffusion-Based Solver for CNF Placement on the Cloud-Continuum
+  q=60 c=78 opus=NOT_REL | Unsupervised Invariant Risk Minimization
+  q=60 c=78 opus=NOT_REL | Phys4D: Fine-Grained Physics-Consistent 4D Modeling from Video Di
+  q=60 c=78 opus=NOT_REL | CAMMSR: Category-Guided Attentive Mixture of Experts for Multimod
+  q=60 c=78 opus=NOT_REL | Plug-and-Hide: Provable and Adjustable Diffusion Generative Stega
+  q=58 c=75 opus=NOT_REL | Self-adapting Robotic Agents through Online Continual Reinforceme
+  q=57 c=75 opus=NOT_REL | HALyPO: Heterogeneous-Agent Lyapunov Policy Optimization for Huma
+  q=56 c=75 opus=NOT_REL | Graph Neural Networks with Similarity-Navigated Probabilistic Fea
+  q=54 c=75 opus=NOT_REL | Beyond Cross-Validation: Adaptive Parameter Selection for Kernel-
+  q=54 c=75 opus=NOT_REL | DisenReason: Behavior Disentanglement and Latent Reasoning for Sh
+  q=52 c=75 opus=NOT_REL | Characterizing Machine Learning Force Fields as Emerging Molecula
+
+
+## FALSE NEGATIVES (rejected by q>=65 threshold, but Opus says relevant)
+------------------------------------------------------------------------------------------
+  q=63 c=78 group=safety_net      | The Controllability Trap: A Governance Framework for Militar
+  q=63 c=78 group=safety_net      | RAG vs. GraphRAG: A Systematic Evaluation and Key Insights
+  q=62 c=78 group=safety_net      | Causal Learning Should Embrace the Wisdom of the Crowd
+  q=62 c=78 group=safety_net      | Testing learning hypotheses using neural networks by manipul
+  q=62 c=70 group=safety_net      | Accelerating OpenPangu Inference on NPU via Speculative Deco
+  q=61 c=82 group=rejected        | 2-Coloring Cycles in One Round
+  q=58 c=75 group=safety_net      | A Systematic Analysis of Biases in Large Language Models
+  q=50 c=78 group=safety_net      | The Epistemological Consequences of Large Language Models: R
+
+
+## FALSE POSITIVES IN BORDERLINE (q=65-69, accepted but Opus says not relevant)
+------------------------------------------------------------------------------------------
+  q=65 c=78 | Joint Hardware-Workload Co-Optimization for In-Memory Computing A
+  q=65 c=78 | Continuous Modal Logical Neural Networks: Modal Reasoning via Sto
+  q=65 c=78 | DKD-KAN: A Lightweight knowledge-distilled KAN intrusion detectio
+  q=65 c=78 | BAH Dataset for Ambivalence/Hesitancy Recognition in Videos for B
+  q=66 c=78 | Separators in Enhancing Autoregressive Pretraining for Vision Mam
+  q=66 c=85 | mlx-vis: GPU-Accelerated Dimensionality Reduction and Visualizati
+  q=67 c=80 | Graph Hopfield Networks: Energy-Based Node Classification with As
+  q=67 c=78 | Chimera: Neuro-Symbolic Attention Primitives for Trustworthy Data
+  q=68 c=85 | CERNet: Class-Embedding Predictive-Coding RNN for Unified Robot M
+  q=68 c=80 | Lang2Str: Two-Stage Crystal Structure Generation with LLMs and Co
+
+
+## KEY FINDINGS
+----------------------------------------------------------------------
+1. The current safety net (q>=65 OR c<80) has very low precision in the
+   safety_net group: most papers with q<65 and c<80 are NOT relevant.
+   The c<80 condition rescues almost no true positives while admitting
+   many false positives (papers on carbon flux, robotics, EEG, etc.)
+
+2. Simple quality threshold (q>=65) performs better than any safety net
+   configuration, because the safety net adds noise without catching
+   meaningful relevant papers.
+
+3. The judge's quality score is a strong discriminator:
+   - q>=80: 100% precision (all papers truly relevant)
+   - q=65-69: ~60% precision (mixed, but more relevant than not)
+   - q<65: ~23% precision (mostly noise)
+   - rejected (q<65, c>=80): ~3% relevant (excellent true negatives)

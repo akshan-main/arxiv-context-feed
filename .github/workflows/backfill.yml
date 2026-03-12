@@ -84,9 +84,6 @@ jobs:
           CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
           LLM_API_KEYS: ${{ secrets.LLM_API_KEYS }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          LLM_SECONDARY_API_KEYS: ${{ secrets.LLM_SECONDARY_API_KEYS }}
-          LLM_SECONDARY_BASE_URL: ${{ secrets.LLM_SECONDARY_BASE_URL }}
-          LLM_SECONDARY_MODEL_ID: ${{ secrets.LLM_SECONDARY_MODEL_ID }}
           ARXIV_THROTTLE_SECONDS: '3'
         run: |
           ${{ steps.parse.outputs.command }}
@@ -100,18 +97,20 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
-      - name: Comment on issue
+      - name: Comment on issue and close
         if: ${{ steps.parse.outputs.issue_number != '' && always() }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          ISSUE="${{ steps.parse.outputs.issue_number }}"
           STATUS="${{ job.status }}"
           SUMMARY="Backfill workflow **${STATUS}**."
           if [ -f artifacts/run_summary.md ]; then
             SUMMARY="${SUMMARY}\n\n$(cat artifacts/run_summary.md)"
           fi
-          gh issue comment "${{ steps.parse.outputs.issue_number }}" \
-            --body "$(echo -e "${SUMMARY}")"
+          gh issue comment "${ISSUE}" --body "$(echo -e "${SUMMARY}")"
+          gh issue close "${ISSUE}" --reason completed
+          gh issue edit "${ISSUE}" --add-label "processed"
 
       - name: Summary
         run: |

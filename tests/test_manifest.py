@@ -53,7 +53,7 @@ class TestManifestCompleteness:
             "arxiv_metadata": {},
             "judge_output": {
                 "prompt_version": 3,
-                "model_id": "qwen-3-235b-a22b-instruct-2507",
+                "model_id": "gpt-oss-120b",
                 "quality_verdict": "accept",
                 "quality_i": 78,
                 "quality_breakdown_i": {

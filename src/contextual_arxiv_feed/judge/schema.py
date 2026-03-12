@@ -39,11 +39,11 @@ class QualityBreakdown(BaseModel):
     def compute_weighted_average(self) -> int:
         """Compute weighted average quality score.
 
-        Novelty-weighted: Novelty=0.40, Relevance=0.35, Technical Depth=0.25
+        Relevance-weighted: Novelty=0.35, Relevance=0.40, Technical Depth=0.25
         """
         weighted = (
-            self.novelty_i * 0.40
-            + self.relevance_i * 0.35
+            self.novelty_i * 0.35
+            + self.relevance_i * 0.40
             + self.technical_depth_i * 0.25
         )
         return int(round(weighted))
