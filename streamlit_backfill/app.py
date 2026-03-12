@@ -127,6 +127,21 @@ elif mode == "date_range":
     payload["start_date"] = start.isoformat()
     payload["end_date"] = end.isoformat()
 
+if mode in ("single_date", "date_range"):
+    st.subheader("Top papers (by citations)")
+    use_top_n = st.checkbox("Limit to top N papers per period", value=False)
+    if use_top_n:
+        col_n, col_g = st.columns(2)
+        with col_n:
+            top_n = st.number_input("Top N papers", min_value=1, max_value=500, value=50, step=10)
+        with col_g:
+            granularity = st.selectbox("Per", ["month", "year"])
+        payload["top_n"] = top_n
+        payload["top_n_granularity"] = granularity
+    else:
+        payload["top_n"] = 0
+        payload["top_n_granularity"] = ""
+
 elif mode == "identifiers":
     raw = st.text_area(
         "Identifiers (one per line)",

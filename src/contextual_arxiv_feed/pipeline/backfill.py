@@ -12,8 +12,12 @@ Never posts to Reddit (backfill is silent ingestion only).
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import re
+import subprocess
+import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -26,12 +30,16 @@ from contextual_arxiv_feed.contextual import ContextualClient
 from contextual_arxiv_feed.contextual.metadata import build_paper_metadata
 from contextual_arxiv_feed.judge import JudgeOutput, create_judge
 from contextual_arxiv_feed.judge.schema import QualityBreakdown
+from contextual_arxiv_feed.keys.rotator import KeyRotator
 from contextual_arxiv_feed.matcher import KeywordMatcher
+from contextual_arxiv_feed.pipeline.citations import OpenAlexClient
 from contextual_arxiv_feed.pipeline.venue import detect_top_venue
 
 logger = logging.getLogger(__name__)
 
 MAX_RESULTS_PER_QUERY = 1000
+# Stop processing at 2h30m to leave time for cleanup (workflow timeout is 3h).
+WALL_CLOCK_LIMIT_SECONDS = 150 * 60
 
 ARXIV_ID_RE = re.compile(r"(\d{4}\.\d{4,5})(v\d+)?")
 ARXIV_URL_RE = re.compile(r"arxiv\.org/(?:abs|pdf)/(\d{4}\.\d{4,5})(v\d+)?")
@@ -127,6 +135,8 @@ class BackfillStats:
     download_failed: int = 0
     ingest_failed: int = 0
     ingested: int = 0
+    remaining_count: int = 0
+    continuation_issue: str = ""
     results: list[BackfillResult] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -153,6 +163,8 @@ class BackfillStats:
             "download_failed": self.download_failed,
             "ingest_failed": self.ingest_failed,
             "ingested": self.ingested,
+            "remaining_count": self.remaining_count,
+            "continuation_issue": self.continuation_issue,
         }
 
 
@@ -178,6 +190,8 @@ class BackfillPipeline:
         self._matcher = KeywordMatcher(config.topics)
         self._judge = create_judge(config.judge, config.topics.get_enabled_topics())
 
+        self._start_time = time.monotonic()
+
         self._contextual: ContextualClient | None = None
         if not self._dry_run and config.contextual_api_key:
             self._contextual = ContextualClient(
@@ -201,9 +215,20 @@ class BackfillPipeline:
         self.close()
 
     def run_date_range(
-        self, start_date: datetime, end_date: datetime
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        top_n: int = 0,
+        top_n_granularity: str = "month",
     ) -> BackfillStats:
-        """Run backfill for a date range."""
+        """Run backfill for a date range.
+
+        Args:
+            start_date: Start of date range.
+            end_date: End of date range.
+            top_n: If > 0, only process the top N papers (by citations) per period.
+            top_n_granularity: Period for top_n selection ("month" or "year").
+        """
         stats = BackfillStats(
             run_id=str(uuid.uuid4())[:8],
             started_at=datetime.utcnow(),
@@ -216,20 +241,52 @@ class BackfillPipeline:
             f"Backfill {stats.run_id}: {start_date.date()} to {end_date.date()}"
         )
 
-        categories = self._get_categories()
-        papers = self._api.search_by_date_range(
-            start_date, end_date, categories, max_results=MAX_RESULTS_PER_QUERY,
-        )
-        stats.candidates_total = len(papers)
-        logger.info(f"Found {len(papers)} papers in date range")
+        # If top_n is set, split into periods and take top N from each
+        if top_n > 0:
+            periods = self._split_into_periods(start_date, end_date, top_n_granularity)
+            logger.info(f"Top-{top_n} mode: {len(periods)} {top_n_granularity}(s)")
+            all_papers: list[ArxivMetadata] = []
+            categories = self._get_categories()
 
-        if len(papers) >= MAX_RESULTS_PER_QUERY:
+            for period_start, period_end in periods:
+                if self._should_stop():
+                    break
+                logger.info(f"Fetching {period_start.date()} to {period_end.date()}")
+                period_papers = self._api.search_by_date_range(
+                    period_start, period_end, categories, max_results=MAX_RESULTS_PER_QUERY,
+                )
+                logger.info(f"  Found {len(period_papers)} papers, selecting top {top_n}")
+                sorted_papers = self._sort_by_citations(period_papers)
+                all_papers.extend(sorted_papers[:top_n])
+
+            papers = all_papers
+        else:
+            categories = self._get_categories()
+            papers = self._api.search_by_date_range(
+                start_date, end_date, categories, max_results=MAX_RESULTS_PER_QUERY,
+            )
+            # Sort by citation count so most impactful papers are processed first
+            papers = self._sort_by_citations(papers)
+
+        stats.candidates_total = len(papers)
+        logger.info(f"Processing {len(papers)} papers total")
+
+        if not top_n and len(papers) >= MAX_RESULTS_PER_QUERY:
             logger.warning(
                 f"Hit max results ({MAX_RESULTS_PER_QUERY}). "
                 "Split into smaller date ranges."
             )
 
         for i, metadata in enumerate(papers):
+            if self._should_stop():
+                remaining = papers[i:]
+                logger.warning(
+                    f"Time limit reached at paper {i}/{len(papers)}. "
+                    f"{len(remaining)} papers remaining."
+                )
+                self._create_continuation_issue(remaining, stats)
+                break
+
             if i > 0 and i % 50 == 0:
                 logger.info(f"Progress: {i}/{len(papers)}")
             result = self._process_paper(metadata, stats)
@@ -239,9 +296,9 @@ class BackfillPipeline:
         self._log_summary(stats)
         return stats
 
-    def run_single_date(self, date: datetime) -> BackfillStats:
+    def run_single_date(self, date: datetime, top_n: int = 0) -> BackfillStats:
         """Run backfill for a single date."""
-        stats = self.run_date_range(date, date)
+        stats = self.run_date_range(date, date, top_n=top_n)
         stats.mode = "single_date"
         return stats
 
@@ -272,7 +329,16 @@ class BackfillPipeline:
         stats.candidates_total = len(papers)
         logger.info(f"Fetched metadata for {len(papers)} papers")
 
-        for metadata in papers:
+        for i, metadata in enumerate(papers):
+            if self._should_stop():
+                remaining = papers[i:]
+                logger.warning(
+                    f"Time limit reached at paper {i}/{len(papers)}. "
+                    f"{len(remaining)} papers remaining."
+                )
+                self._create_continuation_issue(remaining, stats)
+                break
+
             result = self._process_paper(metadata, stats)
             stats.results.append(result)
 
@@ -286,12 +352,144 @@ class BackfillPipeline:
             categories.update(topic.arxiv_categories)
         return list(categories)
 
+    @staticmethod
+    def _split_into_periods(
+        start_date: datetime, end_date: datetime, granularity: str,
+    ) -> list[tuple[datetime, datetime]]:
+        """Split a date range into month or year periods."""
+        periods: list[tuple[datetime, datetime]] = []
+        current = start_date
+
+        while current <= end_date:
+            if granularity == "year":
+                period_end = datetime(current.year, 12, 31)
+            else:  # month
+                # Last day of current month
+                if current.month == 12:
+                    period_end = datetime(current.year, 12, 31)
+                else:
+                    period_end = datetime(current.year, current.month + 1, 1) - timedelta(days=1)
+
+            period_end = min(period_end, end_date)
+            periods.append((current, period_end))
+
+            # Advance to next period
+            current = period_end + timedelta(days=1)
+
+        return periods
+
     def _log_summary(self, stats: BackfillStats) -> None:
         logger.info(
             f"Backfill complete: {stats.ingested} ingested, "
             f"{stats.rejected_quality} rejected, "
             f"{stats.already_exists} already existed"
         )
+        if stats.remaining_count > 0:
+            logger.info(
+                f"Time limit reached — {stats.remaining_count} papers remaining. "
+                f"Continuation issue: {stats.continuation_issue}"
+            )
+
+    def _should_stop(self) -> bool:
+        """Check if we're approaching the wall-clock time limit."""
+        elapsed = time.monotonic() - self._start_time
+        return elapsed >= WALL_CLOCK_LIMIT_SECONDS
+
+    def _sort_by_citations(
+        self, papers: list[ArxivMetadata],
+    ) -> list[ArxivMetadata]:
+        """Sort papers by citation count (highest first) using OpenAlex.
+
+        Papers without a DOI or without citation data sort last (original order).
+        """
+        rotator = KeyRotator.from_environment(cooldown_seconds=60)
+        pool = rotator.get_pool("openalex")
+        client = OpenAlexClient(key_pool=pool)
+
+        citation_map: dict[str, int] = {}
+        looked_up = 0
+        for paper in papers:
+            doi = paper.doi
+            if not doi:
+                continue
+            data = client.get_by_doi(doi)
+            looked_up += 1
+            if data:
+                citation_map[paper.arxiv_id] = data.citation_count
+            if looked_up % 50 == 0:
+                logger.info(f"Citation lookup progress: {looked_up}/{len(papers)}")
+
+        client.close()
+        logger.info(
+            f"Citation lookup done: {len(citation_map)} papers with data "
+            f"out of {looked_up} looked up"
+        )
+
+        # Stable sort: papers with citations first (desc), then the rest in original order
+        return sorted(
+            papers,
+            key=lambda p: citation_map.get(p.arxiv_id, -1),
+            reverse=True,
+        )
+
+    def _create_continuation_issue(
+        self,
+        remaining_papers: list[ArxivMetadata],
+        stats: BackfillStats,
+    ) -> str:
+        """Create a GitHub issue with remaining paper IDs for auto-continuation.
+
+        Returns the issue URL or empty string on failure.
+        """
+        ids = [p.arxiv_id for p in remaining_papers]
+        stats.remaining_count = len(ids)
+
+        payload = {
+            "request_type": "identifiers",
+            "identifiers": ids,
+            "dry_run": self._dry_run,
+            "requested_by": "auto-continuation",
+            "note": f"Continuation of run {stats.run_id} — {len(ids)} remaining papers",
+        }
+
+        title = f"[Backfill] continuation — {len(ids)} papers from run {stats.run_id}"
+        body = (
+            "## Auto-Continuation Backfill Request\n\n"
+            f"**Parent run:** `{stats.run_id}`\n"
+            f"**Remaining papers:** {len(ids)}\n"
+            f"**Dry run:** `{self._dry_run}`\n"
+            "\n### Payload\n\n"
+            f"```json\n{json.dumps(payload, indent=2)}\n```\n\n"
+            "---\n*Auto-created by backfill pipeline (time limit reached)*\n"
+        )
+
+        repo = os.getenv("GITHUB_REPOSITORY", "")
+        if not repo:
+            logger.warning("GITHUB_REPOSITORY not set — cannot create continuation issue")
+            return ""
+
+        try:
+            result = subprocess.run(
+                [
+                    "gh", "issue", "create",
+                    "--repo", repo,
+                    "--title", title,
+                    "--body", body,
+                    "--label", "backfill",
+                ],
+                capture_output=True, text=True, timeout=30,
+            )
+            if result.returncode == 0:
+                issue_url = result.stdout.strip()
+                stats.continuation_issue = issue_url
+                logger.info(f"Created continuation issue: {issue_url}")
+                return issue_url
+            else:
+                logger.error(f"gh issue create failed: {result.stderr}")
+                return ""
+        except Exception as e:
+            logger.error(f"Failed to create continuation issue: {e}")
+            return ""
 
     def _process_paper(
         self, metadata: ArxivMetadata, stats: BackfillStats,

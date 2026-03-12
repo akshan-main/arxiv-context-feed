@@ -51,7 +51,7 @@ jobs:
     timeout-minutes: 180
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'backfill'))
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'backfill') && github.event.issue.state == 'open')
 
     steps:
       - name: Checkout repository
@@ -89,6 +89,8 @@ jobs:
           CONTEXTUAL_BASE_URL: ${{ secrets.CONTEXTUAL_BASE_URL }}
           LLM_API_KEYS: ${{ secrets.LLM_API_KEYS }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          OPENALEX_API_KEYS: ${{ secrets.OPENALEX_API_KEYS }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARXIV_THROTTLE_SECONDS: '3'
         run: |
           ${{ steps.parse.outputs.command }}
@@ -113,9 +115,8 @@ jobs:
           if [ -f artifacts/run_summary.md ]; then
             SUMMARY="${SUMMARY}\n\n$(cat artifacts/run_summary.md)"
           fi
-          gh issue comment "${ISSUE}" --body "$(echo -e "${SUMMARY}")"
-          gh issue close "${ISSUE}" --reason completed
-          gh issue edit "${ISSUE}" --add-label "processed"
+          gh issue comment "${ISSUE}" --body "$(echo -e "${SUMMARY}")" || true
+          gh issue close "${ISSUE}" --reason completed || true
 
       - name: Summary
         run: |

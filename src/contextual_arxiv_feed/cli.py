@@ -141,9 +141,11 @@ def run_daily(ctx: click.Context, dry_run: bool) -> None:
 @main.command("backfill")
 @click.option("--start", required=True, help="Start date (YYYY-MM-DD)")
 @click.option("--end", required=True, help="End date (YYYY-MM-DD)")
+@click.option("--top-n", default=0, type=int, help="Limit to top N papers by citations per period (0=no limit)")
+@click.option("--top-n-granularity", default="month", type=click.Choice(["month", "year"]), help="Period for top-N selection")
 @click.option("--dry-run", is_flag=True, help="Run without ingesting")
 @click.pass_context
-def backfill(ctx: click.Context, start: str, end: str, dry_run: bool) -> None:
+def backfill(ctx: click.Context, start: str, end: str, top_n: int, top_n_granularity: str, dry_run: bool) -> None:
     """Backfill papers from a date range."""
     logger.info(f"Starting backfill: {start} to {end}")
 
@@ -166,7 +168,7 @@ def backfill(ctx: click.Context, start: str, end: str, dry_run: bool) -> None:
         sys.exit(1)
 
     with BackfillPipeline(config, dry_run=dry_run) as pipeline:
-        stats = pipeline.run_date_range(start_date, end_date)
+        stats = pipeline.run_date_range(start_date, end_date, top_n=top_n, top_n_granularity=top_n_granularity)
 
     generate_reports(stats, "backfill")
 
@@ -182,9 +184,11 @@ def backfill(ctx: click.Context, start: str, end: str, dry_run: bool) -> None:
 
 @main.command("backfill-date")
 @click.option("--date", required=True, help="Date to backfill (YYYY-MM-DD)")
+@click.option("--top-n", default=0, type=int, help="Limit to top N papers by citations (0=no limit)")
+@click.option("--top-n-granularity", default="month", type=click.Choice(["month", "year"]), help="Period for top-N (unused for single date)")
 @click.option("--dry-run", is_flag=True, help="Run without ingesting")
 @click.pass_context
-def backfill_date(ctx: click.Context, date: str, dry_run: bool) -> None:
+def backfill_date(ctx: click.Context, date: str, top_n: int, top_n_granularity: str, dry_run: bool) -> None:
     """Backfill papers from a single date."""
     logger.info(f"Starting backfill for date: {date}")
 
@@ -202,7 +206,7 @@ def backfill_date(ctx: click.Context, date: str, dry_run: bool) -> None:
         sys.exit(1)
 
     with BackfillPipeline(config, dry_run=dry_run) as pipeline:
-        stats = pipeline.run_single_date(target_date)
+        stats = pipeline.run_single_date(target_date, top_n=top_n)
 
     generate_reports(stats, "backfill")
 

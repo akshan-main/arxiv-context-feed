@@ -46,7 +46,7 @@ def parse_issue_payload(issue_number: str) -> dict:
         sys.exit(1)
 
     result = subprocess.run(
-        ["gh", "issue", "view", issue_number, "--json", "body,labels"],
+        ["gh", "issue", "view", issue_number, "--json", "body,labels,state"],
         capture_output=True, text=True,
     )
     if result.returncode != 0:
@@ -55,12 +55,13 @@ def parse_issue_payload(issue_number: str) -> dict:
 
     data = json.loads(result.stdout)
 
+    if data.get("state", "").upper() == "CLOSED":
+        print(f"Issue #{issue_number} is already closed. Skipping.", file=sys.stderr)
+        sys.exit(1)
+
     labels = [l["name"] for l in data.get("labels", [])]
     if "backfill" not in labels:
         print(f"Issue #{issue_number} missing 'backfill' label. Labels: {labels}", file=sys.stderr)
-        sys.exit(1)
-    if "processed" in labels:
-        print(f"Issue #{issue_number} already processed. Skipping.", file=sys.stderr)
         sys.exit(1)
 
     body = data.get("body", "")
@@ -72,20 +73,33 @@ def parse_issue_payload(issue_number: str) -> dict:
     return json.loads(match.group(1))
 
 
+def build_top_n_flags(payload: dict) -> str:
+    """Build --top-n and --top-n-granularity flags if present."""
+    top_n = payload.get("top_n", 0)
+    granularity = payload.get("top_n_granularity", "")
+    if not top_n or top_n <= 0:
+        return ""
+    flags = f" --top-n {int(top_n)}"
+    if granularity in ("month", "year"):
+        flags += f" --top-n-granularity {granularity}"
+    return flags
+
+
 def build_command(payload: dict) -> str:
     """Build CLI command from validated payload. Returns shell-safe command."""
     mode = payload.get("request_type", "single_date")
     dry_run = payload.get("dry_run", False)
     dry_flag = " --dry-run" if dry_run else ""
+    top_n_flags = build_top_n_flags(payload)
 
     if mode == "single_date":
         date = validate_date(payload.get("date", ""), "date")
-        return f"contextual-arxiv-feed backfill-date --date {date}{dry_flag}"
+        return f"contextual-arxiv-feed backfill-date --date {date}{top_n_flags}{dry_flag}"
 
     elif mode == "date_range":
         start = validate_date(payload.get("start_date", ""), "start_date")
         end = validate_date(payload.get("end_date", ""), "end_date")
-        return f"contextual-arxiv-feed backfill --start {start} --end {end}{dry_flag}"
+        return f"contextual-arxiv-feed backfill --start {start} --end {end}{top_n_flags}{dry_flag}"
 
     elif mode == "identifiers":
         ids = payload.get("identifiers", [])
