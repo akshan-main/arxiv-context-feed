@@ -5,6 +5,8 @@ permissions:
   contents: read
 
 on:
+  issues:
+    types: [opened, labeled]
   workflow_dispatch:
     inputs:
       mode:
@@ -47,6 +49,9 @@ jobs:
   backfill:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'backfill'))
 
     steps:
       - name: Checkout repository
@@ -72,7 +77,7 @@ jobs:
           INPUT_END_DATE: ${{ inputs.end_date }}
           INPUT_IDENTIFIERS: ${{ inputs.identifiers }}
           INPUT_DRY_RUN: ${{ inputs.dry_run }}
-          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number || github.event.issue.number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python backfill/parse_inputs.py

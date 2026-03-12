@@ -147,7 +147,7 @@ elif mode == "identifiers":
         can_submit = False
 
 payload["dry_run"] = st.checkbox("Dry run (no actual ingestion)", value=False)
-payload["note"] = st.text_input("Note (optional)", placeholder="Nina requested historical ingest")
+payload["note"] = st.text_input("Note (optional)", placeholder="requested historical ingest")
 
 st.subheader("Payload")
 st.json(payload)
