@@ -9,7 +9,7 @@ Papers flow through a 3-stage filter before ingestion:
 | Stage | Input | Method | Purpose |
 |-------|-------|--------|---------|
 | **Stage 1** | Title + RSS snippet | Keyword/phrase matching (stemmed) | Wide net, catches obvious matches |
-| **Stage 1.5** | Title + snippet | Discovery Agent (LLM) | Semantic catch — finds papers keywords miss |
+| **Stage 1.5** | Title + snippet | Discovery Agent (LLM) | Semantic catch; finds papers keywords miss |
 | **Stage 2** | Full abstract | Judge Agent (LLM) | Full topicality + quality evaluation |
 
 Acceptance: `quality_i >= 65` (cross-batch validated, 4 batches / 205 papers, F1=77% ± 10%). Judge failures are fail-closed (skip, don't ingest).
@@ -92,7 +92,7 @@ contextual-arxiv-feed validate-config
 
 ## 2. Backfill (Historical Ingestion)
 
-Three modes for ingesting papers from the past. Backfill never posts to Reddit — silent ingestion only. Papers are sorted by citation count (OpenAlex) before processing. If a run approaches the 2h30m time limit, it auto-creates a continuation issue with remaining paper IDs.
+Three modes for ingesting papers from the past. Backfill never posts to Reddit, silent ingestion only. Papers are sorted by citation count (OpenAlex) before processing. If a run approaches the 2h30m time limit, it auto-creates a continuation issue with remaining paper IDs.
 
 ### Date range
 
@@ -149,7 +149,7 @@ contextual-arxiv-feed backfill-identifiers -i 2401.12345 --dry-run
 
 ### Streamlit Backfill Request UI
 
-Lightweight web UI for requesting backfills. Creates a GitHub Issue with a JSON payload — does NOT run ingestion. The [backfill.yml](.github/workflows/backfill.yml) workflow picks up the issue.
+Lightweight web UI for requesting backfills. Creates a GitHub Issue with a JSON payload; does NOT run ingestion. The [backfill.yml](.github/workflows/backfill.yml) workflow picks up the issue.
 
 ```bash
 pip install -r streamlit_backfill/requirements.txt
@@ -163,6 +163,8 @@ export GITHUB_REPO=owner/repo
 ```bash
 streamlit run streamlit_backfill/app.py
 ```
+
+For Streamlit Cloud deployment, set `GITHUB_TOKEN` and `GITHUB_REPO` in the app's Secrets settings (Settings -> Secrets).
 
 Features:
 - Three modes: Single Date, Date Range, Identifiers (with validation preview)
@@ -239,11 +241,11 @@ See [.env.example](.env.example) for all variables.
 
 ### Judge ([config/judge.yaml](config/judge.yaml))
 
-Cerebras with round-robin key rotation.
+3-tier LLM fallback: Cerebras (primary) -> Gemini (secondary) -> local Qwen. Round-robin key rotation across all tiers.
 
 ### Reddit ([config/reddit.yaml](config/reddit.yaml))
 
-Posts top daily papers to your subreddit. Daily pipeline only — backfill never posts.
+Posts top daily papers to your subreddit. Daily pipeline only; backfill never posts.
 
 ---
 
@@ -259,21 +261,27 @@ Posts top daily papers to your subreddit. Daily pipeline only — backfill never
 
 ### Backfill Workflow
 
-Trigger manually with inputs or point to a GitHub Issue:
+Triggers automatically when a GitHub Issue with the `backfill` label is opened (e.g. from the Streamlit app). Can also be triggered manually via workflow dispatch.
 
-- **Direct inputs**: mode, date, start_date, end_date, identifiers, dry_run
-- **Issue-based**: provide `issue_number` — reads JSON payload from issue body, requires `backfill` label
+- **Issue-based**: opens an issue with `backfill` label containing a JSON payload in the body. The workflow parses the payload and runs the CLI command. After completion, the issue is commented with results and closed.
+- **Direct inputs**: mode, date, start_date, end_date, identifiers, top_n, dry_run
+- **Auto-continuation**: if a run approaches the 2h30m time limit, it creates a new issue with remaining paper IDs so the workflow auto-triggers a follow-up run.
+- **Citation ordering**: papers are sorted by citation count (OpenAlex) before processing so the most impactful papers are ingested first.
+- **Top-N selection**: limit ingestion to the top N most-cited papers per month or year.
 
 ### Required Secrets
 
 - `CONTEXTUAL_API_KEY`
 - `CONTEXTUAL_DATASTORE_ID`
+- `LLM_API_KEYS` (primary judge, Cerebras)
+- `LLM_BASE_URL` (primary judge endpoint)
 
 ### Optional Secrets
 
-- `LLM_API_KEYS` (judge)
+- `CONTEXTUAL_BASE_URL` (defaults to `https://api.contextual.ai`)
+- `LLM_SECONDARY_API_KEYS`, `LLM_SECONDARY_BASE_URL`, `LLM_SECONDARY_MODEL_ID` (fallback judge, Gemini)
+- `OPENALEX_API_KEYS` (citation sorting in backfill)
 - `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USERNAME`, `REDDIT_PASSWORD`
-- `OPENALEX_API_KEYS`, `S2_API_KEYS` (citations)
 
 ---
 
@@ -327,10 +335,11 @@ src/contextual_arxiv_feed/
 ├── reddit/                # Reddit posting (daily only)
 └── pipeline/
     ├── daily.py           # Daily RSS ingestion
-    ├── backfill.py        # Historical backfill (date range / identifiers)
+    ├── backfill.py        # Historical backfill (citation sorting, top-N, auto-continuation)
     ├── updates.py         # Weekly updates
-    └── citations.py       # Citation refresh
+    ├── citations.py       # Citation refresh (OpenAlex)
+    └── venue.py           # Top venue detection (auto-ingest bypass)
 
-backfill/                  # Workflow input parser
-streamlit_backfill/        # Backfill request UI
+backfill/                  # Workflow input parser (parse_inputs.py)
+streamlit_backfill/        # Backfill request UI (Streamlit Cloud)
 ```
