@@ -2,6 +2,10 @@
 
 An ingestion system that continuously ingests arXiv papers into a [Contextual AI](https://contextual.ai) Datastore using a multi-stage filtering pipeline.
 
+ click [here](#1.Daily-Pipeline) for Daily pipeline
+ click [here](#2.Backfill-(Historical-Ingestion)) for Historcial pipeline
+
+
 ## How It Works
 
 Papers flow through a 3-stage filter before ingestion:
@@ -18,7 +22,7 @@ Acceptance: `quality_i >= 65` (cross-batch validated, 4 batches / 205 papers, F1
 
 ## 1. Daily Pipeline
 
-Runs automatically via GitHub Actions at 06:00 UTC. Fetches new papers from arXiv RSS, filters through all 3 stages, ingests accepted papers to Contextual AI, and optionally posts top papers to Reddit.
+Runs automatically via GitHub Actions at 06:00 UTC. Fetches new papers from arXiv RSS, filters through all 3 stages, ingests accepted papers to Contextual AI, and optionally posts top papers to Reddit if Reddit API key and account data are added in secrets.
 
 ### Run daily ingestion
 
