@@ -2,8 +2,8 @@
 
 An ingestion system that continuously ingests arXiv papers into a [Contextual AI](https://contextual.ai) Datastore using a multi-stage filtering pipeline.
 
-[1. Daily Pipeline](#1-daily-pipeline) for Daily pipeline <br>
-[2. Backfill (Historical Ingestion)](#2-backfill-historical-ingestion) for Historcial pipeline
+1. [Daily Pipeline](#1-daily-pipeline) for Daily pipeline <br>
+2. [Backfill (Historical Ingestion)](#2-backfill-historical-ingestion) for Historcial pipeline
 
 
 ## How It Works
